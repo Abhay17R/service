@@ -17,7 +17,7 @@ const ServiceLinkLanding = () => {
     setEmail('');
   };
 
-  // Feature categories
+  // Feature categoriess
   const features = [
     {
       id: 'auth',
