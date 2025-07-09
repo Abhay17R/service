@@ -1,7 +1,10 @@
+// src/components/Header.jsx (UPDATED)
+
 import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { FaUserFriends, FaCalendarCheck, FaSignOutAlt, FaTh } from 'react-icons/fa';
-import './header.css'; // Hum iske liye CSS banayenge
+// ==> STEP 1: Naye icons import kiye gaye hain
+import { FaTh, FaCalendarCheck, FaSignOutAlt, FaComments, FaUserCircle } from 'react-icons/fa';
+import './header.css';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -26,6 +29,16 @@ const Header = () => {
           <NavLink to="/my-appointments" className="nav-link">
             <FaCalendarCheck /> My Appointments
           </NavLink>
+          
+          {/* ==> STEP 2: Naye links add kiye gaye hain ==> */}
+          <NavLink to="/chat" className="nav-link">
+            <FaComments /> Chat
+          </NavLink>
+          <NavLink to="/profile" className="nav-link">
+            <FaUserCircle /> My Profile
+          </NavLink>
+          {/* <== Naye links yahan khatm hote hain <== */}
+
         </nav>
         <div className="header-actions">
           <button onClick={handleLogout} className="logout-btn">
