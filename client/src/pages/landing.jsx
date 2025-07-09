@@ -30,7 +30,7 @@ const LandingPage = () => {
               <li><a href="#how-it-works">How It Works</a></li>
               <li><a href="#testimonials">Testimonials</a></li>
               <li><a href="/login" className="btn btn-outline">Login</a></li>
-              <li><a href="#cta" className="btn btn-primary">Register</a></li>
+              <li><a href="/register" className="btn btn-primary">Register</a></li>
             </ul>
           </nav>
           <div className="mobile-menu-btn">

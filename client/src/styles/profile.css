@@ -183,3 +183,13 @@ textarea {
     padding: 2rem 1.5rem;
   }
 }
+/* ... saare purane styles ... */
+
+.api-error-message {
+  background-color: #fee2e2; /* Light red */
+  color: #ef4444; /* Red */
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}

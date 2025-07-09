@@ -160,21 +160,49 @@
     res.status(200).json({ success: true, user });
   });
 
-  export const updateMyProfile = catchAsyncError(async (req, res, next) => {
-    const { name, location, bio, experience, hourlyRate, availability } = req.body;
-    const user = await User.findById(req.user.id);
+ export const updateMyProfile = catchAsyncError(async (req, res, next) => {
+  // ==> UPDATE: Destructure all the new fields from req.body
+  const { 
+    name, 
+    phone, // Added phone
+    location, 
+    bio, 
+    experience, 
+    hourlyRate, 
+    availability,
+    portfolioUrl, // Added portfolioUrl
+    occupation, // Added occupation for professional
+    customOccupation // Added for the 'Other' option
+  } = req.body;
 
-    if (name) user.name = name;
-    if (location) user.location = location;
-    if (user.role === 'professional') {
-      if (bio) user.professionalDetails.bio = bio;
-      if (experience) user.professionalDetails.experience = experience;
-      if (hourlyRate) user.professionalDetails.hourlyRate = hourlyRate;
-      if (availability) user.professionalDetails.availability = availability;
-    }
-    await user.save();
-    res.status(200).json({ success: true, message: "Profile updated successfully.", user });
+  const user = await User.findById(req.user.id);
+
+  // Update common fields
+  if (name) user.name = name;
+  if (location) user.location = location;
+  if (phone) user.phone = phone;
+
+  // Update fields only for users with the 'professional' role
+  if (user.role === 'professional') {
+    // If occupation from dropdown is 'Other', use the customOccupation value.
+    const finalOccupation = occupation === 'Other' ? customOccupation : occupation;
+    
+    if (finalOccupation) user.professionalDetails.occupation = finalOccupation;
+    if (bio) user.professionalDetails.bio = bio;
+    if (experience) user.professionalDetails.experience = experience;
+    if (hourlyRate) user.professionalDetails.hourlyRate = hourlyRate;
+    if (availability) user.professionalDetails.availability = availability;
+    if (portfolioUrl) user.professionalDetails.portfolioUrl = portfolioUrl;
+  }
+
+  await user.save();
+  
+  res.status(200).json({ 
+    success: true, 
+    message: "Profile updated successfully.", 
+    user 
   });
+});
 
   export const updateProfileImage = catchAsyncError(async (req, res, next) => {
     if (!req.file) return next(new ErrorHandler('Please upload an image.', 400));

@@ -54,6 +54,7 @@ const userSchema = new mongoose.Schema(
       experience: { type: Number },
       hourlyRate: { type: Number },
       availability: { type: String },
+       portfolioUrl: { type: String } ,
     },
     reviews: [{
       type: mongoose.Schema.Types.ObjectId,
