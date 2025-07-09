@@ -15,6 +15,7 @@ const Header = () => {
   const handleLogout = () => {
     // This will now call the logout function defined in AuthContext.jsx
     logout(); 
+     navigate('/'); 
   };
 
 
