@@ -1,21 +1,17 @@
-// src/pages/MyAppointmentsPage.jsx
+// src/pages/MyAppointmentsPage.jsx (Fully Integrated)
 
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FaCalendarAlt, FaClock, FaCheckCircle, FaTimesCircle, FaHourglassHalf } from 'react-icons/fa';
-import '../styles/appointment.css'; // Iske liye CSS neeche hai
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaCalendarAlt, FaClock, FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaStar } from 'react-icons/fa';
+import api from '../api/axios'; // Apne configured axios instance ko import karein
+import '../styles/appointment.css'; // Is CSS file ko bhi update karna hoga
 
-// Dummy data for demonstration. In a real app, this would come from an API.
-const dummyAppointments = [
-  { id: 1, professionalName: 'Dr. Ananya Sharma', professionalOccupation: 'Doctor', date: '2024-10-25', time: '11:00 AM', status: 'upcoming', imageUrl: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16e?w=500' },
-  { id: 2, professionalName: 'Priya Singh', professionalOccupation: 'Tutor', date: '2024-09-15', time: '02:30 PM', status: 'completed', imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=500' },
-  { id: 3, professionalName: 'Adv. Rohan Verma', professionalOccupation: 'Lawyer', date: '2024-10-28', time: '04:00 PM', status: 'upcoming', imageUrl: 'https://images.unsplash.com/photo-1594744806549-5a76173d35b4?w=500' },
-  { id: 4, professionalName: 'Isha Gupta', professionalOccupation: 'Web Developer', date: '2024-08-20', time: '10:00 AM', status: 'cancelled', imageUrl: 'https://images.unsplash.com/photo-1554744512-d6c603f27c64?w=500' },
-  { id: 5, professionalName: 'Dr. Vikram Rathore', professionalOccupation: 'Doctor', date: '2024-09-01', time: '09:00 AM', status: 'completed', imageUrl: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=500' },
-];
-
-const AppointmentCard = ({ appointment }) => {
-  const { professionalName, professionalOccupation, date, time, status, imageUrl } = appointment;
+// ==========================================================
+//               APPOINTMENT CARD COMPONENT
+// ==========================================================
+const AppointmentCard = ({ appointment, onCancel, onOpenReviewModal, onOpenRescheduleModal }) => {
+  const { id, professionalName, professionalOccupation, date, time, status, imageUrl } = appointment;
+  const navigate = useNavigate();
 
   const getStatusInfo = () => {
     switch (status) {
@@ -24,6 +20,14 @@ const AppointmentCard = ({ appointment }) => {
       case 'cancelled': return { icon: <FaTimesCircle />, text: 'Cancelled', className: 'cancelled' };
       default: return {};
     }
+  };
+
+  const handleBookAgain = () => {
+    // This assumes you have a route like /professional/:id
+    // You would need to pass the professional's ID to this component
+    // For now, let's just log it.
+    console.log("Booking again with:", professionalName);
+    // navigate(`/professional/${appointment.professionalId}`);
   };
 
   const statusInfo = getStatusInfo();
@@ -45,15 +49,15 @@ const AppointmentCard = ({ appointment }) => {
       <div className="appointment-actions">
         {status === 'upcoming' && (
           <>
-            <button className="btn-secondary">Reschedule</button>
-            <button className="btn-danger">Cancel</button>
+            <button onClick={() => onOpenRescheduleModal(appointment)} className="btn-secondary">Reschedule</button>
+            <button onClick={() => onCancel(id)} className="btn-danger">Cancel</button>
           </>
         )}
         {status === 'completed' && (
-          <button className="btn-primary">Leave a Review</button>
+          <button onClick={() => onOpenReviewModal(appointment)} className="btn-primary">Leave a Review</button>
         )}
         {status === 'cancelled' && (
-          <button className="btn-primary">Book Again</button>
+          <button onClick={handleBookAgain} className="btn-primary">Book Again</button>
         )}
       </div>
     </div>
@@ -61,60 +65,204 @@ const AppointmentCard = ({ appointment }) => {
 };
 
 
+// ==========================================================
+//               MAIN APPOINTMENTS PAGE COMPONENT
+// ==========================================================
 const MyAppointmentsPage = () => {
   const [allAppointments, setAllAppointments] = useState([]);
-  const [activeTab, setActiveTab] = useState('upcoming'); // 'upcoming', 'completed', 'cancelled'
+  const [activeTab, setActiveTab] = useState('upcoming');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Simulate API call
-  useEffect(() => {
+  // Modal States
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewingAppointment, setReviewingAppointment] = useState(null);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+
+  const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
+  const [reschedulingAppointment, setReschedulingAppointment] = useState(null);
+  const [newDate, setNewDate] = useState('');
+  const [newTime, setNewTime] = useState('');
+
+
+  // Fetch appointments from backend
+  const fetchAppointments = useCallback(async () => {
     setLoading(true);
-    setTimeout(() => {
-      setAllAppointments(dummyAppointments);
+    setError(null);
+    try {
+      const { data } = await api.get('/appointments/my');
+      setAllAppointments(data.appointments || []);
+    } catch (err) {
+      setError('Failed to fetch appointments. Please try again later.');
+      console.error(err);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
+
+
+  // Handler to cancel an appointment
+  const handleCancelAppointment = async (appointmentId) => {
+    if (!window.confirm('Are you sure you want to cancel this appointment?')) return;
+    try {
+      await api.put(`/appointments/${appointmentId}/cancel`);
+      // Update UI instantly without refetching
+      setAllAppointments(prev =>
+        prev.map(app => app.id === appointmentId ? { ...app, status: 'cancelled' } : app)
+      );
+      alert('Appointment cancelled successfully!');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to cancel appointment.');
+    }
+  };
+
+  // Handlers for Review Modal
+  const handleOpenReviewModal = (appointment) => {
+    setReviewingAppointment(appointment);
+    setIsReviewModalOpen(true);
+  };
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (rating === 0) {
+      alert('Please select a rating.');
+      return;
+    }
+    try {
+        await api.post('/reviews', {
+            appointmentId: reviewingAppointment.id,
+            rating,
+            comment,
+        });
+        alert('Review submitted successfully!');
+        setIsReviewModalOpen(false);
+        setRating(0);
+        setComment('');
+    } catch(err) {
+        alert(err.response?.data?.message || 'Failed to submit review.');
+    }
+  };
+
+  // Handlers for Reschedule Modal
+  const handleOpenRescheduleModal = (appointment) => {
+    setReschedulingAppointment(appointment);
+    setNewDate(appointment.date.split('T')[0]); // Pre-fill date
+    setNewTime(appointment.time); // Pre-fill time
+    setIsRescheduleModalOpen(true);
+  };
+
+  const handleRescheduleSubmit = async (e) => {
+      e.preventDefault();
+      try {
+          await api.put(`/appointments/${reschedulingAppointment.id}/reschedule`, {
+              date: newDate,
+              time: newTime,
+          });
+          alert('Appointment rescheduled successfully!');
+          // Refresh the list to see changes
+          fetchAppointments(); 
+          setIsRescheduleModalOpen(false);
+      } catch (err) {
+          alert(err.response?.data?.message || 'Failed to reschedule appointment.');
+      }
+  };
 
   const filteredAppointments = allAppointments.filter(app => app.status === activeTab);
 
   const renderContent = () => {
-    if (loading) {
-      return <div className="loader"></div>;
-    }
+    if (loading) return <div className="loader"></div>;
+    if (error) return <div className="empty-state"><p>{error}</p></div>;
     if (filteredAppointments.length === 0) {
       return (
         <div className="empty-state">
           <FaCalendarAlt className="empty-icon" />
           <h2>No {activeTab} appointments</h2>
-          <p>You don't have any appointments in this category.</p>
+          <p>You don't have any appointments in this category yet.</p>
           <Link to="/dashboard" className="btn-primary">Find Professionals</Link>
         </div>
       );
     }
     return (
       <div className="appointments-list">
-        {filteredAppointments.map(app => <AppointmentCard key={app.id} appointment={app} />)}
+        {filteredAppointments.map(app => (
+          <AppointmentCard
+            key={app.id}
+            appointment={app}
+            onCancel={handleCancelAppointment}
+            onOpenReviewModal={handleOpenReviewModal}
+            onOpenRescheduleModal={handleOpenRescheduleModal}
+          />
+        ))}
       </div>
     );
   };
 
   return (
-    <div className="appointments-page">
-      <main className="appointments-content">
-        <header className="page-header">
-          <h1>My Appointments</h1>
-          <p>View and manage all your scheduled appointments.</p>
-        </header>
+    <>
+      <div className="appointments-page">
+        <main className="appointments-content">
+          <header className="page-header">
+            <h1>My Appointments</h1>
+            <p>View and manage all your scheduled appointments.</p>
+          </header>
+          <nav className="tabs">
+            <button onClick={() => setActiveTab('upcoming')} className={activeTab === 'upcoming' ? 'active' : ''}>Upcoming</button>
+            <button onClick={() => setActiveTab('completed')} className={activeTab === 'completed' ? 'active' : ''}>Completed</button>
+            <button onClick={() => setActiveTab('cancelled')} className={activeTab === 'cancelled' ? 'active' : ''}>Cancelled</button>
+          </nav>
+          {renderContent()}
+        </main>
+      </div>
 
-        <nav className="tabs">
-          <button onClick={() => setActiveTab('upcoming')} className={activeTab === 'upcoming' ? 'active' : ''}>Upcoming</button>
-          <button onClick={() => setActiveTab('completed')} className={activeTab === 'completed' ? 'active' : ''}>Completed</button>
-          <button onClick={() => setActiveTab('cancelled')} className={activeTab === 'cancelled' ? 'active' : ''}>Cancelled</button>
-        </nav>
+      {/* Review Modal */}
+      {isReviewModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button onClick={() => setIsReviewModalOpen(false)} className="close-modal">×</button>
+            <h2>Leave a Review for {reviewingAppointment.professionalName}</h2>
+            <form onSubmit={handleReviewSubmit}>
+              <div className="star-rating">
+                {[1, 2, 3, 4, 5].map(star => (
+                  <FaStar key={star} className={`star ${rating >= star ? 'selected' : ''}`} onClick={() => setRating(star)} />
+                ))}
+              </div>
+              <textarea
+                placeholder="Share your experience..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                rows="5"
+              ></textarea>
+              <button type="submit" className="btn-primary">Submit Review</button>
+            </form>
+          </div>
+        </div>
+      )}
 
-        {renderContent()}
-      </main>
-    </div>
+      {/* Reschedule Modal */}
+      {isRescheduleModalOpen && (
+          <div className="modal-overlay">
+              <div className="modal-content">
+                  <button onClick={() => setIsRescheduleModalOpen(false)} className="close-modal">×</button>
+                  <h2>Reschedule Appointment with {reschedulingAppointment.professionalName}</h2>
+                  <form onSubmit={handleRescheduleSubmit}>
+                    <div className="form-group">
+                        <label htmlFor="newDate">New Date</label>
+                        <input type="date" id="newDate" value={newDate} onChange={(e) => setNewDate(e.target.value)} required />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="newTime">New Time</label>
+                        <input type="time" id="newTime" value={newTime} onChange={(e) => setNewTime(e.target.value)} required />
+                    </div>
+                    <button type="submit" className="btn-primary">Confirm Reschedule</button>
+                  </form>
+              </div>
+          </div>
+      )}
+    </>
   );
 };
 

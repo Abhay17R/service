@@ -188,3 +188,117 @@
     padding: 0.8rem 0.5rem;
   }
 }
+/* src/styles/appointment.css (UPDATED) */
+
+/* ... Purane saare styles yahan tak waise hi rahenge ... */
+
+/* ============================================== */
+/* ==> YAHAN SE NAYE STYLES ADD KAREIN <== */
+/* ============================================== */
+
+/* --- Modal Styles --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.close-modal {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #999;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-content textarea {
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical;
+}
+
+/* Star Rating */
+.star-rating {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.star {
+  font-size: 2rem;
+  color: #e0e0e0;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.star.selected,
+.star:hover {
+  color: var(--star-color);
+}
+.star:hover ~ .star {
+    color: #e0e0e0;
+}
+
+
+/* Form Group for Reschedule Modal */
+.modal-content .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.modal-content .form-group label {
+    font-weight: 500;
+}
+.modal-content .form-group input {
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
