@@ -1,0 +1,223 @@
+/* src/pages/DashboardPage.css */
+
+/* --- Google Font --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* --- CSS Variables for Easy Theming --- */
+:root {
+  --primary-color: #6a5af9;
+  --secondary-color: #f7f7f7;
+  --text-color: #333;
+  --text-light: #666;
+  --card-bg: #ffffff;
+  --bg-color: #f0f2f5;
+  --star-color: #ffc107;
+  --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+.dashboard-page {
+  background-color: var(--bg-color);
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+/* --- Welcome Section --- */
+.welcome-section h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+}
+
+.welcome-section p {
+  font-size: 1.1rem;
+  color: var(--text-light);
+}
+
+/* --- Filter Section --- */
+.filter-section {
+  background: var(--card-bg);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  margin: 2rem 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.filter-icon {
+  color: var(--primary-color);
+  font-size: 1.2rem;
+}
+
+.filter-section label {
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.filter-section select {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  background-color: #fff;
+  transition: border-color 0.3s ease;
+}
+
+.filter-section select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+/* --- Professionals Grid --- */
+.professionals-grid-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 3px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.professionals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.no-results {
+    text-align: center;
+    grid-column: 1 / -1;
+    color: var(--text-light);
+    font-size: 1.2rem;
+    padding: 2rem;
+}
+
+/* --- Professional Card --- */
+.professional-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.professional-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.card-image-container {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.professional-card:hover .card-image {
+  transform: scale(1.05);
+}
+
+.card-content {
+  padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.card-occupation {
+  color: var(--primary-color);
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.card-info {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.card-info span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.icon {
+  color: var(--primary-color);
+}
+.icon.star {
+  color: var(--star-color);
+}
+
+.view-profile-btn {
+  background-color: var(--primary-color);
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: 500;
+  margin-top: auto; /* Pushes the button to the bottom */
+  transition: background-color 0.3s ease;
+}
+
+.view-profile-btn:hover {
+  background-color: #5848d8;
+}
+
+/* --- Loader --- */
+.loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid var(--primary-color);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 2rem auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) {
+  .welcome-section h1 {
+    font-size: 2rem;
+  }
+  .filter-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

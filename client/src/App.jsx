@@ -5,6 +5,7 @@ import LandingPage from './pages/landing';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/register';
 import Otpverify from './pages/otpverify';
+import DashboardPage from './pages/dashboard';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/verify-otp" element={<Otpverify />} />
+         <Route path="/dashboard" element={<DashboardPage />} />
       </Routes>
     </Router>
   );
