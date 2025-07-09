@@ -16,6 +16,6 @@ export const sendToken = async (user, statusCode, message, res) => {
       success: true,
       message,
       token,
-      user: { _id, name, email, phone, role, familyId, parentId },
+        user: { _id, name, email, phone, role },
     });
 };
