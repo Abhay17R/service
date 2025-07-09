@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaLock, FaEnvelope, FaGoogle, FaFacebook, FaTwitter, FaArrowLeft, FaSpinner } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-import { useAuth } from '../context/AuthContext'; // Apne custom hook ko import karo
+import { useAuth } from '../hooks/useAuth'; // Apne custom hook ko import karo
 import './Auth.css';
 
 const LoginPage = () => {

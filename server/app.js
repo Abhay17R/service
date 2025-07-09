@@ -3,20 +3,19 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import dotenv from 'dotenv'; // <<-- Sirf import yahan rahega
 
 // Apne routes import karo
 import userRouter from './routes/userRoutes.js';
 import errorMiddleware from './middleware/error.js';
 import appointmentRouter from './routes/appointmentRoutes.js';
-import reviewRouter from './routes/reviewRoutes.js'
+import reviewRouter from './routes/reviewRoutes.js';
 
 // *** YAHAN PAR FIX HAI ***
 // cors middleware use hone se pehle .env file ko load karna zaroori hai.
 dotenv.config({ path: './.env' });
 
 const app = express();
-
 
 // --- ZAROORI MIDDLEWARE ---
 
@@ -33,12 +32,10 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
-
 // --- API ROUTES ---
 app.use("/api/v1", userRouter);
-pp.use("/api/v1/appointments", appointmentRouter);
+app.use("/api/v1/appointments", appointmentRouter);
 app.use("/api/v1/reviews", reviewRouter);
-
 
 // --- HEALTH CHECK ROUTE ---
 app.get("/", (req, res) => {
@@ -48,10 +45,8 @@ app.get("/", (req, res) => {
     });
 });
 
-
 // --- ERROR HANDLING MIDDLEWARE ---
 app.use(errorMiddleware);
-
 
 // app ko export karo taaki server.js isko import karke use kar sake
 export default app;

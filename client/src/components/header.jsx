@@ -5,16 +5,18 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 // ==> STEP 1: Naye icons import kiye gaye hain
 import { FaTh, FaCalendarCheck, FaSignOutAlt, FaComments, FaUserCircle } from 'react-icons/fa';
 import './header.css';
+import { useAuth } from '../hooks/useAuth';
 
 const Header = () => {
   const navigate = useNavigate();
+   const { user, logout } = useAuth();  
 
   // TODO: Isko aapki real logout API call se replace karein
   const handleLogout = () => {
-    console.log("Logging out...");
-    // Yahan API call karke cookie clear karein aur user ko redirect karein
-    navigate('/login');
+    // This will now call the logout function defined in AuthContext.jsx
+    logout(); 
   };
+
 
   return (
     <header className="app-header">

@@ -29,7 +29,7 @@ const LandingPage = () => {
               <li><a href="#features">Features</a></li>
               <li><a href="#how-it-works">How It Works</a></li>
               <li><a href="#testimonials">Testimonials</a></li>
-              <li><a href="#cta" className="btn btn-outline">Login</a></li>
+              <li><a href="/login" className="btn btn-outline">Login</a></li>
               <li><a href="#cta" className="btn btn-primary">Register</a></li>
             </ul>
           </nav>
