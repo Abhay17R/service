@@ -7,6 +7,7 @@ import LoginPage from './pages/Login';
 import RegisterPage from './pages/register';
 import Otpverify from './pages/otpverify';
 import DashboardPage from './pages/dashboard';
+import MyAppointmentsPage from './pages/appointment';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/verify-otp" element={<Otpverify />} />
          <Route element={<Layout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/my-appointments" element={<MyAppointmentsPage />} />
          </Route>
         
       </Routes>
