@@ -31,7 +31,7 @@ const upload = multer({
 //              AUTHENTICATION ROUTES                 //
 //====================================================//
 
-// Step 1: User details submit karke OTP mangwayega
+// Step 1: User details submit karke OTP mangwayegaa
 router.route("/register").post(register);
 
 // Step 2: OTP enter karke account verify karega
