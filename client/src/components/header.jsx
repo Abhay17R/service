@@ -19,7 +19,7 @@ const Header = () => {
   return (
     <header className="app-header">
       <div className="header-container">
-        <Link to="/dashboard" className="logo">
+        <Link to="/" className="logo">
           ServiceLink<span>Pro</span>
         </Link>
         <nav className="main-nav">

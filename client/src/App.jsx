@@ -8,6 +8,8 @@ import RegisterPage from './pages/register';
 import Otpverify from './pages/otpverify';
 import DashboardPage from './pages/dashboard';
 import MyAppointmentsPage from './pages/appointment';
+import Chat from './pages/chat'
+import ProfilePage from './pages/profile';
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
          <Route element={<Layout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/my-appointments" element={<MyAppointmentsPage />} />
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/profile" element={<ProfilePage />} />
          </Route>
         
       </Routes>
