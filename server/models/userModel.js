@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['user', 'professional'],
+        enum: ["client", "professional"],
       default: 'user',
     },
     profileImage: {
@@ -73,7 +73,7 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    verificationCode: Number,
+    verificationCode: String,
     verificationCodeExpire: Date,
 
     // --- Password Reset Fields ---

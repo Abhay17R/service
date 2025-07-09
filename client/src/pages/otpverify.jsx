@@ -1,10 +1,10 @@
-// src/OtpVerificationPage.js
+// src/OtpVerificationPage.js (CORRECTED FOR 5-DIGIT OTP)
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FaArrowLeft, FaSpinner } from 'react-icons/fa';
-import './Auth.css'; // Aapki CSS file
-import api from '../api/axios'; // API client import karein
+import './Auth.css';
+import api from '../api/axios';
 
 const OtpVerificationPage = () => {
   const [otp, setOtp] = useState('');
@@ -15,11 +15,9 @@ const OtpVerificationPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Register page se email aur verification method haasil karein
   const email = location.state?.email;
-  const verificationMethod = location.state?.verificationMethod; // 'email' ya 'phone'
+  const verificationMethod = location.state?.verificationMethod;
 
-  // Agar pichle page se email nahi mila, to user ko wapas bhej do
   useEffect(() => {
     if (!email) {
       console.error("Email not found in location state. Redirecting to register.");
@@ -27,8 +25,6 @@ const OtpVerificationPage = () => {
     }
   }, [email, navigate]);
 
-
-  // Countdown timer ke liye
   useEffect(() => {
     let timer;
     if (countdown > 0) {
@@ -37,27 +33,22 @@ const OtpVerificationPage = () => {
     return () => clearTimeout(timer);
   }, [countdown]);
 
-  // --- API CALL: OTP VERIFY KARNE KE LIYE ---
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
-    if (!otp || otp.length < 4) { // 4-digit OTP ke liye validation
-      setApiError('Please enter a valid 4-digit OTP.');
+    // CHANGE #1: Validation ko 5-digit ke liye update kiya
+    if (!otp || otp.length < 5) {
+      setApiError('Please enter a valid 5-digit OTP.');
       return;
     }
     setApiError('');
     setLoading(true);
 
     try {
-      const payload = {
-        email: email, // Backend ko email chahiye
-        otp: otp,
-      };
-      
-      // Aapka route /verify hai, isliye /verify use karein
+      const payload = { email: email, otp: otp };
       await api.post('/verify', payload);
 
       console.log('OTP Verified Successfully!');
-      navigate('/dashboard'); // Safal hone par dashboard par bhejein
+      navigate('/dashboard');
 
     } catch (error) {
       setApiError(error.response?.data?.message || 'Invalid OTP. Please try again.');
@@ -66,7 +57,6 @@ const OtpVerificationPage = () => {
     }
   };
 
-  // --- API CALL: OTP RESEND KARNE KE LIYE ---
   const handleResendOtp = async () => {
     if (countdown > 0 || loading) return;
     
@@ -74,22 +64,10 @@ const OtpVerificationPage = () => {
     setApiError('');
 
     try {
-        // Sirf OTP resend karne ke liye ek alag/sada endpoint behtar hai
-        // Hum yahan register endpoint ko dobara call kar sakte hain
-        // NOTE: Iske liye Register page se saara data pass karna padega, jo theek nahi hai
-        // Best approach: Ek naya '/resend-otp' endpoint banayein (niche bataya hai)
-
-        const payload = {
-            email: email,
-            verificationMethod: verificationMethod,
-        };
-
-        // Yahan ek naya endpoint '/resend-otp' call karenge
+        const payload = { email: email, verificationMethod: verificationMethod };
         await api.post('/resend-otp', payload);
-
         console.log(`Resending OTP to ${email}`);
-        setCountdown(30); // Timer ko reset karein
-
+        setCountdown(30);
     } catch(error) {
         setApiError(error.response?.data?.message || 'Failed to resend OTP. Please try again.');
     } finally {
@@ -97,7 +75,6 @@ const OtpVerificationPage = () => {
     }
   };
 
-  // Email/Phone ko chhipane ke liye function
   const getMaskedIdentifier = () => {
     if (!email) return 'your contact';
     const [name, domain] = email.split('@');
@@ -118,14 +95,16 @@ const OtpVerificationPage = () => {
           <div className="auth-header">
             <div className="auth-logo"><span>ServiceLink</span><span className="logo-tag">Pro</span></div>
             <h1>Verify Your Account</h1>
-            <p>A 4-digit code has been sent to <strong>{getMaskedIdentifier()}</strong>.</p>
+            {/* CHANGE #2: UI text ko 5-digit ke liye update kiya */}
+            <p>A 5-digit code has been sent to <strong>{getMaskedIdentifier()}</strong>.</p>
           </div>
 
           <form onSubmit={handleOtpSubmit} className="auth-form" noValidate>
             {apiError && <div className="api-error">{apiError}</div>}
             
             <div className="form-group">
-              <label htmlFor="otp">Enter 4-Digit OTP</label>
+              {/* CHANGE #3: Label ko 5-digit ke liye update kiya */}
+              <label htmlFor="otp">Enter 5-Digit OTP</label>
               <input 
                 type="tel"
                 inputMode="numeric"
@@ -133,7 +112,8 @@ const OtpVerificationPage = () => {
                 className={`otp-input ${apiError ? 'input-error' : ''}`}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
-                maxLength="4"
+                // CHANGE #4: maxLength ko 5 kiya
+                maxLength="5"
                 autoComplete="one-time-code"
                 autoFocus
               />
