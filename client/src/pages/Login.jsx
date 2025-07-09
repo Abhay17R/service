@@ -1,19 +1,21 @@
-// src/LoginPage.js
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaLock, FaEnvelope, FaGoogle, FaFacebook, FaTwitter, FaArrowLeft, FaSpinner } from 'react-icons/fa';
-import './Auth.css'; // <-- CSS file ko yahan import karein
+import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext'; // Apne custom hook ko import karo
+import './Auth.css';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [apiError, setApiError] = useState('');
   const navigate = useNavigate();
 
-  // Form validation function
+  // Step 1: Context se 'login' function ko nikalo
+  const { login } = useAuth();
+
+  // Form validation function (bilkul same rahega)
   const validateForm = () => {
     const newErrors = {};
     if (!email) {
@@ -29,44 +31,31 @@ const LoginPage = () => {
     }
     
     setErrors(newErrors);
-    // Return true if no errors
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setApiError(''); // Clear previous API errors
-
-    if (!validateForm()) {
-      return; // Stop submission if validation fails
-    }
+    if (!validateForm()) return;
 
     setLoading(true);
 
-    // Simulate API call
-    try {
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // Mock success/error
-          if (email === "admin@test.com" && password === "password123") {
-            console.log('Login successful with:', { email, password, rememberMe });
-            resolve();
-          } else {
-            reject(new Error('Invalid email or password.'));
-          }
-        }, 2000); // 2-second delay
-      });
-      
-      // After successful login, redirect to dashboard
-      navigate('/dashboard');
+    // Step 2: Context wale 'login' function ko call karo
+    const result = await login(email, password);
 
-    } catch (error) {
-      setApiError(error.message);
-    } finally {
-      setLoading(false);
+    // Step 3: Result ke hisaab se UI update karo
+    if (result.success) {
+      toast.success(result.message);
+      navigate('/dashboard'); // Success par redirect karo
+    } else {
+      toast.error(result.message); // Error par toast dikhao
     }
+
+    setLoading(false);
   };
 
+  // --- Baaki ka JSX bilkul same rahega ---
+  // Isme koi bhi change karne ki zaroorat nahi hai.
   return (
     <div className="auth-page">
       <div className="auth-container">
@@ -86,8 +75,6 @@ const LoginPage = () => {
         </div>
         
         <form onSubmit={handleSubmit} className="auth-form" noValidate>
-          {apiError && <div className="api-error">{apiError}</div>}
-          
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
             <div className="input-with-icon">
@@ -127,8 +114,7 @@ const LoginPage = () => {
             <label className="checkbox-container">
               <input
                 type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
+                onChange={() => {}} // Remove a state if 'remember me' is not implemented
               />
               <span className="checkmark"></span>
               Remember me
@@ -178,4 +164,5 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+// Component ka naam file ke naam se match kar lo
+export default LoginPage; 

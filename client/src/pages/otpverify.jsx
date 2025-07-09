@@ -1,86 +1,107 @@
 // src/OtpVerificationPage.js
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FaArrowLeft, FaSpinner } from 'react-icons/fa';
-import './Auth.css'; // Wahi CSS file use karein jo aapne di thi
+import './Auth.css'; // Aapki CSS file
+import api from '../api/axios'; // API client import karein
 
 const OtpVerificationPage = () => {
   const [otp, setOtp] = useState('');
-  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
-  const [countdown, setCountdown] = useState(30); // 30 second ka timer
+  const [countdown, setCountdown] = useState(30);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Pichle page se email ya phone number haasil karein
-  // Agar data nahi milta to ek default message dikhayein
- const identifier = location.state?.identifier || '';
+  // Register page se email aur verification method haasil karein
+  const email = location.state?.email;
+  const verificationMethod = location.state?.verificationMethod; // 'email' ya 'phone'
+
+  // Agar pichle page se email nahi mila, to user ko wapas bhej do
+  useEffect(() => {
+    if (!email) {
+      console.error("Email not found in location state. Redirecting to register.");
+      navigate('/register');
+    }
+  }, [email, navigate]);
 
 
   // Countdown timer ke liye
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (countdown > 0) {
-        setCountdown(countdown - 1);
-      }
-    }, 1000);
+    let timer;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
     return () => clearTimeout(timer);
   }, [countdown]);
 
-  // OTP Verification Submit Handler
+  // --- API CALL: OTP VERIFY KARNE KE LIYE ---
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
-    // 5-digit OTP ke liye validation
-    if (!otp || !/^\d{5}$/.test(otp)) {
-      setErrors({ otp: 'Please enter a valid 5-digit OTP.' });
+    if (!otp || otp.length < 4) { // 4-digit OTP ke liye validation
+      setApiError('Please enter a valid 4-digit OTP.');
       return;
     }
-    setErrors({});
     setApiError('');
     setLoading(true);
 
-    // API call simulate karein (Asli API se replace karein)
     try {
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (otp === '12345') { // Maan lijiye sahi OTP '12345' hai
-            resolve({ success: true });
-          } else {
-            reject(new Error('Invalid OTP. Please try again.'));
-          }
-        }, 1500);
-      });
-      // Safal hone par dashboard par bhejein
+      const payload = {
+        email: email, // Backend ko email chahiye
+        otp: otp,
+      };
+      
+      // Aapka route /verify hai, isliye /verify use karein
+      await api.post('/verify', payload);
+
       console.log('OTP Verified Successfully!');
-      navigate('/dashboard');
+      navigate('/dashboard'); // Safal hone par dashboard par bhejein
+
     } catch (error) {
-      setApiError(error.message);
+      setApiError(error.response?.data?.message || 'Invalid OTP. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  // OTP Resend Handler
-  const handleResendOtp = () => {
-    if (countdown > 0) return;
-    console.log(`Resending OTP to ${identifier}`);
-    setCountdown(30); // Timer ko reset karein
+  // --- API CALL: OTP RESEND KARNE KE LIYE ---
+  const handleResendOtp = async () => {
+    if (countdown > 0 || loading) return;
+    
+    setLoading(true);
     setApiError('');
-    setErrors({});
-    // Yahan par OTP resend karne ka API call hoga
+
+    try {
+        // Sirf OTP resend karne ke liye ek alag/sada endpoint behtar hai
+        // Hum yahan register endpoint ko dobara call kar sakte hain
+        // NOTE: Iske liye Register page se saara data pass karna padega, jo theek nahi hai
+        // Best approach: Ek naya '/resend-otp' endpoint banayein (niche bataya hai)
+
+        const payload = {
+            email: email,
+            verificationMethod: verificationMethod,
+        };
+
+        // Yahan ek naya endpoint '/resend-otp' call karenge
+        await api.post('/resend-otp', payload);
+
+        console.log(`Resending OTP to ${email}`);
+        setCountdown(30); // Timer ko reset karein
+
+    } catch(error) {
+        setApiError(error.response?.data?.message || 'Failed to resend OTP. Please try again.');
+    } finally {
+        setLoading(false);
+    }
   };
 
-  // Email/Phone ko mask karne ke liye function
+  // Email/Phone ko chhipane ke liye function
   const getMaskedIdentifier = () => {
-    if (identifier.includes('@')) {
-      const [name, domain] = identifier.split('@');
-      return `${name.slice(0, 2)}***@${domain}`;
-    } else {
-      // Assuming it's a 10-digit phone number
-      return `******${identifier.slice(6)}`;
-    }
+    if (!email) return 'your contact';
+    const [name, domain] = email.split('@');
+    return `${name.slice(0, 2)}***@${domain}`;
   };
 
   return (
@@ -95,30 +116,27 @@ const OtpVerificationPage = () => {
           </div>
 
           <div className="auth-header">
-            <div className="auth-logo">
-              <span>ServiceLink</span><span className="logo-tag">Pro</span>
-            </div>
+            <div className="auth-logo"><span>ServiceLink</span><span className="logo-tag">Pro</span></div>
             <h1>Verify Your Account</h1>
-            <p>A 5-digit code has been sent to <strong>{getMaskedIdentifier()}</strong>.</p>
+            <p>A 4-digit code has been sent to <strong>{getMaskedIdentifier()}</strong>.</p>
           </div>
 
           <form onSubmit={handleOtpSubmit} className="auth-form" noValidate>
             {apiError && <div className="api-error">{apiError}</div>}
             
             <div className="form-group">
-              <label htmlFor="otp">Enter 5-Digit OTP</label>
+              <label htmlFor="otp">Enter 4-Digit OTP</label>
               <input 
                 type="tel"
                 inputMode="numeric"
                 id="otp"
-                className={`otp-input ${errors.otp ? 'input-error' : ''}`}
+                className={`otp-input ${apiError ? 'input-error' : ''}`}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
-                maxLength="5"
+                maxLength="4"
                 autoComplete="one-time-code"
                 autoFocus
               />
-              {errors.otp && <p className="error-message">{errors.otp}</p>}
             </div>
 
             <button type="submit" className="btn btn-primary" disabled={loading}>
@@ -127,14 +145,14 @@ const OtpVerificationPage = () => {
           </form>
 
           <div className="auth-footer">
-            <p>
-              Didn't receive the code?{' '}
-              <button onClick={handleResendOtp} disabled={countdown > 0} className="resend-btn">
-                {countdown > 0 ? `Resend in ${countdown}s` : 'Resend Code'}
+            <p>Didn't receive the code?{' '}
+              <button onClick={handleResendOtp} disabled={countdown > 0 || loading} className="resend-btn">
+                {loading && 'Sending...' }
+                {!loading && countdown > 0 && `Resend in ${countdown}s`}
+                {!loading && countdown === 0 && 'Resend Code'}
               </button>
             </p>
           </div>
-
         </div>
       </div>
       
