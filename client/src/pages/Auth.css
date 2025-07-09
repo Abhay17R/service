@@ -528,3 +528,158 @@ body {
   cursor: not-allowed;
   text-decoration: none;
 }
+/* ======================================================= */
+/* == EXTRA CSS FOR REGISTRATION & OTP VERIFICATION PAGE == */
+/* ======================================================= */
+
+/* Registration Form Specific Input Styles */
+/* Yeh general inputs (text, email, tel, password) ke liye hai */
+.auth-form input[type="text"],
+.auth-form input[type="email"],
+.auth-form input[type="tel"],
+.auth-form input[type="password"] {
+  width: 100%;
+  padding: 12px 15px 12px 45px; /* Icon ke liye left padding */
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  font-family: var(--font-family);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+
+/* --- Step 1: OTP Choice Radio Buttons --- */
+
+.otp-choice-container {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.radio-container {
+  display: block;
+  position: relative;
+  padding-left: 30px;
+  cursor: pointer;
+  font-size: 1rem;
+  user-select: none;
+  font-weight: 500;
+}
+
+/* Hide the browser's default radio button */
+.radio-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Create a custom radio button */
+.radio-checkmark {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: #eee;
+  border: 1px solid var(--border-color);
+  border-radius: 50%; /* Gol banane ke liye */
+  transition: all 0.3s ease;
+}
+
+/* On mouse-over, add a grey background color */
+.radio-container:hover input ~ .radio-checkmark {
+  background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+.radio-container input:checked ~ .radio-checkmark {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.radio-checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the indicator when checked */
+.radio-container input:checked ~ .radio-checkmark:after {
+  display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.radio-container .radio-checkmark:after {
+  top: 6px;
+  left: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+}
+
+
+/* --- Step 2: OTP Input Field Styling --- */
+
+.otp-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1.75rem; /* Bada font size OTP ke liye */
+  text-align: center;
+  letter-spacing: 0.75rem; /* Anko ke beech space */
+  box-sizing: border-box;
+  font-weight: 600;
+  font-family: var(--font-family);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  /* Input mein icon nahi hai, isliye normal padding */
+  padding-left: 15px; 
+}
+
+/* Focus state for OTP input */
+.otp-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+/* OTP input jab error state mein ho */
+.otp-input.input-error {
+  border-color: var(--error-color) !important;
+  box-shadow: 0 0 0 3px rgba(217, 83, 79, 0.2) !important;
+}
+
+
+/* --- Step 2: Resend OTP Button Styling --- */
+
+.resend-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit; /* Apne parent ka font size le */
+  font-family: inherit; /* Apne parent ka font family le */
+  transition: color 0.3s ease;
+}
+
+.resend-btn:hover {
+  text-decoration: underline;
+}
+
+/* Jab button disabled ho (countdown ke dauran) */
+.resend-btn:disabled {
+  color: var(--text-light);
+  cursor: not-allowed;
+  text-decoration: none;
+}
