@@ -8,6 +8,8 @@ import dotenv from 'dotenv';
 // Apne routes import karo
 import userRouter from './routes/userRoutes.js';
 import errorMiddleware from './middleware/error.js';
+import appointmentRouter from './routes/appointmentRoutes.js';
+import reviewRouter from './routes/reviewRoutes.js'
 
 // *** YAHAN PAR FIX HAI ***
 // cors middleware use hone se pehle .env file ko load karna zaroori hai.
@@ -34,6 +36,8 @@ app.use(cookieParser());
 
 // --- API ROUTES ---
 app.use("/api/v1", userRouter);
+pp.use("/api/v1/appointments", appointmentRouter);
+app.use("/api/v1/reviews", reviewRouter);
 
 
 // --- HEALTH CHECK ROUTE ---
