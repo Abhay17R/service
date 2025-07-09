@@ -10,6 +10,8 @@ import userRouter from './routes/userRoutes.js';
 import errorMiddleware from './middleware/error.js';
 import appointmentRouter from './routes/appointmentRoutes.js';
 import reviewRouter from './routes/reviewRoutes.js';
+import chatRouter  from './routes/chatRoutes.js'
+
 
 // *** YAHAN PAR FIX HAI ***
 // cors middleware use hone se pehle .env file ko load karna zaroori hai.
@@ -36,6 +38,7 @@ app.use(cookieParser());
 app.use("/api/v1", userRouter);
 app.use("/api/v1/appointments", appointmentRouter);
 app.use("/api/v1/reviews", reviewRouter);
+app.use("/api/v1/chat", chatRouter); 
 
 // --- HEALTH CHECK ROUTE ---
 app.get("/", (req, res) => {

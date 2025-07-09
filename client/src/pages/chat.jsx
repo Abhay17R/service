@@ -1,114 +1,171 @@
-// src/pages/ChatPage.jsx
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FaPaperPlane, FaSearch } from 'react-icons/fa';
+import api from '../api/axios';
+import { io } from 'socket.io-client';
 import '../styles/chat.css';
 
-// DUMMY DATA: Real app mein yeh sab API se aayega
-const dummyConversations = [
-  { id: 1, name: 'Dr. Ananya Sharma', imageUrl: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16e?w=100', lastMessage: "Yes, of course. Let's discuss this.", timestamp: "10:42 AM", unreadCount: 2 },
-  { id: 2, name: 'Adv. Rohan Verma', imageUrl: 'https://images.unsplash.com/photo-1594744806549-5a76173d35b4?w=100', lastMessage: "I've sent the documents.", timestamp: "Yesterday", unreadCount: 0 },
-  { id: 3, name: 'Isha Gupta', imageUrl: 'https://images.unsplash.com/photo-1554744512-d6c603f27c64?w=100', lastMessage: "Okay, I'll check it out.", timestamp: "18/10/24", unreadCount: 0 },
-];
-
-const dummyMessages = {
-  1: [
-    { id: 'm1', text: "Hello Dr. Sharma, I'd like to book an appointment.", sender: 'me', timestamp: "10:30 AM" },
-    { id: 'm2', text: "Hello! Certainly. What time works best for you?", sender: 'them', timestamp: "10:31 AM" },
-    { id: 'm3', text: "Would tomorrow at 11 AM be possible?", sender: 'me', timestamp: "10:35 AM" },
-    { id: 'm4', text: "Yes, of course. Let's discuss this.", sender: 'them', timestamp: "10:42 AM" },
-  ],
-  2: [
-    { id: 'm5', text: "Hi Rohan, could you please review the contract?", sender: 'me', timestamp: "Yesterday" },
-    { id: 'm6', text: "I've sent the documents.", sender: 'them', timestamp: "Yesterday" },
-  ],
-  3: [],
+const useAuth = () => {
+    const [user, setUser] = useState(null);
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const { data } = await api.get('/me');
+                setUser(data.user);
+            } catch (error) {
+                console.error("Could not fetch user", error);
+            }
+        };
+        fetchUser();
+    }, []);
+    return { currentUser: user };
 };
 
+const serviceLinkSupportChat = {
+  id: 'servicelink_support',
+  name: 'ServiceLink Support',
+  imageUrl: 'https://i.ibb.co/6rFv5S4/servicelink-logo.png',
+};
+
+const serviceLinkSupportMessages = [
+    {
+        _id: 'slm1',
+        message: "Welcome to ServiceLink Support! How can we help you today?",
+        senderId: 'servicelink_support',
+        createdAt: new Date().toISOString(),
+    },
+    {
+        _id: 'slm2',
+        message: "You can ask about booking appointments, payment issues, or any other queries.",
+        senderId: 'servicelink_support',
+        createdAt: new Date().toISOString(),
+    }
+];
 
 const ChatPage = () => {
-  const [conversations, setConversations] = useState(dummyConversations);
+  const { currentUser } = useAuth();
+  const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [loading, setLoading] = useState({ conversations: true, messages: false });
+  const [socket, setSocket] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const messagesEndRef = useRef(null);
 
-  // Set the first conversation as active on initial load
   useEffect(() => {
-    if (conversations.length > 0) {
-      setActiveConversation(conversations[0]);
+    if (currentUser) {
+      const newSocket = io(import.meta.env.VITE_API_URL.replace("/api/v1", ""), {
+          withCredentials: true,
+      });
+      setSocket(newSocket);
+      return () => newSocket.close();
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.on("getOnlineUsers", (users) => {
+      setOnlineUsers(users);
+    });
+    socket.on("newMessage", (incomingMessage) => {
+      if (activeConversation?.id === incomingMessage.senderId) {
+        setMessages((prev) => [...prev, incomingMessage]);
+      }
+    });
+    return () => {
+        socket.off("getOnlineUsers");
+        socket.off("newMessage");
+    };
+  }, [socket, activeConversation]);
+
+  const handleConversationClick = useCallback(async (conversation) => {
+    setActiveConversation(conversation);
+    if (conversation.id === 'servicelink_support') {
+        setMessages(serviceLinkSupportMessages);
+        return;
+    }
+    setLoading(prev => ({...prev, messages: true}));
+    try {
+        const { data } = await api.get(`/chat/messages/${conversation.id}`);
+        setMessages(data || []);
+    } catch (err) {
+        console.error("Failed to fetch messages:", err);
+        setMessages([]);
+    } finally {
+        setLoading(prev => ({...prev, messages: false}));
     }
   }, []);
 
-  // Fetch messages for the active conversation
-  useEffect(() => {
-    if (activeConversation) {
-      setMessages(dummyMessages[activeConversation.id] || []);
+  const fetchConversations = useCallback(async () => {
+    setLoading(prev => ({...prev, conversations: true}));
+    try {
+        const { data } = await api.get('/chat/conversations');
+        const allConversations = [serviceLinkSupportChat, ...(data || [])];
+        setConversations(allConversations);
+        if (allConversations.length > 0 && !activeConversation) {
+            handleConversationClick(allConversations[0]);
+        }
+    } catch (err) {
+        console.error("Failed to fetch conversations:", err);
+        setConversations([serviceLinkSupportChat]);
+        handleConversationClick(serviceLinkSupportChat);
+    } finally {
+        setLoading(prev => ({...prev, conversations: false}));
     }
-  }, [activeConversation]);
+  }, [activeConversation, handleConversationClick]);
 
-  // Auto-scroll to the latest message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-  
-  const handleConversationClick = (conversation) => {
-    setActiveConversation(conversation);
-  };
+    if(currentUser) {
+        fetchConversations();
+    }
+  }, [currentUser, fetchConversations]);
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (newMessage.trim() === '') return;
-
-    const newMessageObj = {
-      id: `m${Date.now()}`,
-      text: newMessage,
-      sender: 'me',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-
-    setMessages([...messages, newMessageObj]);
-    setNewMessage('');
+    if (newMessage.trim() === '' || !activeConversation) return;
+    if (activeConversation.id === 'servicelink_support') {
+        alert("This is a one-way support channel for now.");
+        return;
+    }
+    try {
+        const { data: sentMessage } = await api.post(`/chat/send/${activeConversation.id}`, { message: newMessage });
+        setMessages([...messages, sentMessage]);
+        setNewMessage('');
+    } catch (err) {
+        console.error("Failed to send message:", err);
+    }
   };
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   return (
     <div className="chat-page-layout">
       <div className="chat-container">
-
-        {/* --- Sidebar (Conversation List) --- */}
         <aside className="sidebar">
           <header className="sidebar-header">
             <h2>Conversations</h2>
-            <div className="search-bar">
-              <FaSearch className="search-icon" />
-              <input type="text" placeholder="Search professionals..." />
-            </div>
           </header>
           <div className="conversation-list">
-            {conversations.map(conv => (
+            {loading.conversations ? <p>Loading chats...</p> : conversations.map(conv => (
               <div
                 key={conv.id}
                 className={`conversation-item ${activeConversation?.id === conv.id ? 'active' : ''}`}
                 onClick={() => handleConversationClick(conv)}
               >
-                <img src={conv.imageUrl} alt={conv.name} className="avatar" />
+                <div className="avatar-container">
+                    <img src={conv.imageUrl} alt={conv.name} className="avatar" />
+                    {onlineUsers.includes(conv.id) && <div className="online-indicator"></div>}
+                </div>
                 <div className="conversation-details">
-                  <div className="name-time">
-                    <span className="name">{conv.name}</span>
-                    <span className="timestamp">{conv.timestamp}</span>
-                  </div>
-                  <div className="message-preview">
-                    <p>{conv.lastMessage}</p>
-                    {conv.unreadCount > 0 && <span className="unread-badge">{conv.unreadCount}</span>}
-                  </div>
+                  <div className="name-time"><span className="name">{conv.name}</span></div>
                 </div>
               </div>
             ))}
           </div>
         </aside>
 
-        {/* --- Main Chat Window --- */}
         <main className="chat-window">
           {activeConversation ? (
             <>
@@ -116,16 +173,20 @@ const ChatPage = () => {
                 <img src={activeConversation.imageUrl} alt={activeConversation.name} className="avatar" />
                 <div className="header-info">
                   <h3>{activeConversation.name}</h3>
-                  <span className="status online">Online</span>
+                  {activeConversation.id !== 'servicelink_support' && (
+                    onlineUsers.includes(activeConversation.id) ? 
+                    <span className="status online">Online</span> :
+                    <span className="status offline">Offline</span>
+                  )}
                 </div>
               </header>
 
               <div className="message-area">
-                {messages.map(msg => (
-                  <div key={msg.id} className={`message-bubble-wrapper ${msg.sender === 'me' ? 'sent' : 'received'}`}>
+                {loading.messages ? <p>Loading messages...</p> : messages.map(msg => (
+                  <div key={msg._id} className={`message-bubble-wrapper ${msg.senderId === currentUser?._id ? 'sent' : 'received'}`}>
                     <div className="message-bubble">
-                      <p className="message-text">{msg.text}</p>
-                      <span className="message-timestamp">{msg.timestamp}</span>
+                      <p className="message-text">{msg.message}</p>
+                      <span className="message-timestamp">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                   </div>
                 ))}
@@ -133,22 +194,14 @@ const ChatPage = () => {
               </div>
 
               <form className="message-input-form" onSubmit={handleSendMessage}>
-                <input
-                  type="text"
-                  placeholder="Type your message..."
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                />
+                <input type="text" placeholder="Type your message..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)} />
                 <button type="submit"><FaPaperPlane /></button>
               </form>
             </>
           ) : (
-            <div className="no-chat-selected">
-              <h2>Select a conversation to start chatting</h2>
-            </div>
+            <div className="no-chat-selected"><h2>Select a conversation to start chatting</h2></div>
           )}
         </main>
-
       </div>
     </div>
   );

@@ -234,3 +234,51 @@
   .sidebar { flex-basis: 100%; border: none; }
   .chat-window { display: none; /* Mobile par list aur chat ko alag-alag pages/views mein dikhana behtar hai */ }
 }
+/* src/styles/chat.css (UPDATED) */
+
+/* ... Purane saare styles yahan tak waise hi rahenge ... */
+
+
+/* ============================================== */
+/* ==> YAHAN SE NAYE STYLES ADD/UPDATE KAREIN <== */
+/* ============================================== */
+
+/* For Conversation List Items */
+.conversation-item .avatar-container {
+    position: relative;
+    margin-right: 1rem;
+}
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.online-indicator {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    background-color: #2ecc71; /* Green dot */
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+/* For Chat Header */
+.header-info .status.online { color: #2ecc71; }
+.header-info .status.offline { color: #95a5a6; }
+.header-info .status::before { content: '●'; margin-right: 5px; }
+
+
+/* Message Bubble Update (for backend data) */
+.message-bubble-wrapper.sent .message-bubble {
+  background-color: var(--primary-color);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+.message-bubble-wrapper.received .message-bubble {
+  background-color: #e5e5ea;
+  color: #2c2c2e;
+  border-bottom-left-radius: 4px;
+}
