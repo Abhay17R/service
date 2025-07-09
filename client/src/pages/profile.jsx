@@ -1,48 +1,77 @@
-// src/pages/ProfilePage.jsx (UPDATED with All Occupations)
+// src/pages/ProfilePage.jsx (Final version with 100+ occupations)
 
 import React, { useState, useEffect } from 'react';
-import { FaUser, FaBriefcase, FaEnvelope, FaPhone, FaMapMarkerAlt, FaClock, FaDollarSign, FaLink, FaEdit, FaSpinner } from 'react-icons/fa';
+import {
+  FaUser, FaBriefcase, FaEnvelope, FaPhone, FaMapMarkerAlt, FaClock,
+  FaDollarSign, FaLink, FaEdit, FaSpinner
+} from 'react-icons/fa';
 import '../styles/profile.css';
 
-// Dummy data
-const dummyProfessionalData = { /* ... This part remains unchanged ... */ };
+const dummyProfessionalData = {
+  name: 'John Doe',
+  occupation: 'Software Engineer',
+  bio: 'Experienced software engineer specializing in web development.',
+  experience: 5,
+  hourlyRate: 50,
+  availability: 'Mon-Fri | 9AM - 5PM',
+  email: 'john@example.com',
+  phone: '9876543210',
+  location: 'Mumbai, Maharashtra',
+  portfolioUrl: 'https://johndoe.dev',
+  profileImage: 'https://via.placeholder.com/150'
+};
 
-// =========================================================================
-// ==> STEP 1: Updated and expanded list of occupations.
-// Duplicates are automatically removed by `new Set()`
-// =========================================================================
 const allOccupations = [
-    // Original List
-    'Software Engineer', 'Web Developer', 'UI/UX Designer', 'Data Scientist', 'IT Support Specialist', 'DevOps Engineer', 'Cybersecurity Analyst',
-    'Doctor', 'Nurse', 'Dentist', 'Pharmacist', 'Physiotherapist', 'Veterinarian',
-    'Graphic Designer', 'Content Writer', 'Photographer', 'Video Editor', 'Musician', 'Interior Designer',
-    'Accountant', 'Financial Advisor', 'Marketing Manager', 'Human Resources (HR)', 'Project Manager', 'Business Consultant',
-    'Lawyer', 'Paralegal',
-    'Electrician', 'Plumber', 'Carpenter', 'Mechanic', 'Chef', 'Hair Stylist', 'Fitness Trainer', 'Yoga Instructor',
-    'Teacher', 'Tutor', 'Professor', 'Academic Coach',
-    'Real Estate Agent',
-    'Event Planner', 'Travel Agent', 'Life Coach',
+  // Tech & Engineering
+  'Software Engineer', 'Web Developer', 'UI/UX Designer', 'Data Scientist', 'IT Support Specialist',
+  'DevOps Engineer', 'Cybersecurity Analyst', 'Mobile App Developer', 'QA Tester / QA Engineer',
+  'IT Consultant', 'Game Developer', 'Engineering Consultant',
+  'Computer Science Engineer (CSE)', 'Information Technology Engineer (IT)',
+  'Electronics and Communication Engineer (ECE)', 'Electrical Engineer (EE)',
+  'Mechanical Engineer', 'Civil Engineer', 'Chemical Engineer', 'Biomedical Engineer',
+  'Environmental Engineer', 'Industrial Engineer', 'Aerospace Engineer',
+  'Automobile Engineer', 'Metallurgical Engineer', 'Petroleum Engineer', 'Marine Engineer',
+  'Robotics Engineer', 'Mechatronics Engineer', 'Structural Engineer', 'Instrumentation Engineer',
+  'Mining Engineer', 'Agricultural Engineer', 'Nanotechnology Engineer',
 
-    // New Additions from You
-    // 👨‍⚕️ Healthcare & Wellness
-    'Psychiatrist', 'Nutritionist / Dietitian', 'Speech Therapist', 'Occupational Therapist', 'Chiropractor',
-    // 💻 Tech/IT
-    'Mobile App Developer', 'QA Tester / QA Engineer', 'IT Consultant', 'Game Developer',
-    // 🎨 Creative
-    'Animator / Motion Designer', 'Art Director', 'Voice Over Artist', '3D Modeler',
-    // 🏢 Business & Marketing
-    'SEO Specialist', 'Social Media Manager', 'E-commerce Specialist', 'Virtual Assistant',
-    // 🛠️ Skilled Trades & Home Services
-    'HVAC Technician', 'Pest Control Specialist', 'Roofer', 'Painter', 'Handyman', 'House Cleaner', 'Gardener / Landscaper', 'Home Organizer / Decluttering Specialist', 'Pool Cleaner / Maintenance Technician', 'Window Cleaner',
-    // 📚 Education
-    'Career Counselor', 'Special Education Teacher', 'Curriculum Developer',
-    // ✈️ Events, Lifestyle & Others
-    'Wedding Planner', 'Personal Stylist', 'Makeup Artist', 'Driver / Chauffeur', 'Language Translator', 'Personal Chef'
+  // Healthcare
+  'Doctor', 'Nurse', 'Dentist', 'Pharmacist', 'Physiotherapist', 'Veterinarian',
+  'Psychiatrist', 'Nutritionist / Dietitian', 'Speech Therapist', 'Occupational Therapist', 'Chiropractor',
+
+  // Creative & Media
+  'Graphic Designer', 'Content Writer', 'Photographer', 'Video Editor', 'Musician', 'Interior Designer',
+  'Animator / Motion Designer', 'Art Director', 'Voice Over Artist', '3D Modeler',
+  'Podcast Editor', 'Influencer / Content Creator', 'Brand Strategist',
+
+  // Business & Marketing
+  'Accountant', 'Financial Advisor', 'Marketing Manager', 'Human Resources (HR)', 'Project Manager',
+  'Business Consultant', 'SEO Specialist', 'Social Media Manager', 'E-commerce Specialist',
+  'Virtual Assistant',
+
+  // Legal
+  'Lawyer', 'Paralegal',
+
+  // Skilled Trades & Home Services
+  'Electrician', 'Plumber', 'Carpenter', 'Mechanic', 'Chef', 'Hair Stylist', 'Fitness Trainer',
+  'Yoga Instructor', 'HVAC Technician', 'Pest Control Specialist', 'Roofer', 'Painter',
+  'Handyman', 'House Cleaner', 'Gardener / Landscaper', 'Home Organizer / Decluttering Specialist',
+  'Pool Cleaner / Maintenance Technician', 'Window Cleaner', 'Appliance Repair Technician',
+  'Locksmith', 'Carpet Cleaner', 'Furniture Assembler', 'Water Tank Cleaner',
+
+  // Education
+  'Teacher', 'Tutor', 'Professor', 'Academic Coach', 'Special Education Teacher',
+  'Curriculum Developer', 'Career Counselor',
+
+  // Coaching & Consulting
+  'Life Coach', 'Career Coach', 'Business Coach', 'Public Speaking Coach',
+
+  // Events & Lifestyle
+  'Real Estate Agent', 'Event Planner', 'Wedding Planner', 'Travel Agent',
+  'Personal Stylist', 'Makeup Artist', 'Driver / Chauffeur', 'Language Translator',
+  'Personal Chef', 'Travel Blogger', 'Tour Guide', 'Bartender'
 ];
 
-// Create a unique, sorted list for the dropdown
 const occupationsList = [...new Set(allOccupations)].sort();
-
 
 const ProfilePage = () => {
   const [formData, setFormData] = useState({});
@@ -73,9 +102,15 @@ const ProfilePage = () => {
     e.preventDefault();
     setLoading(true);
     setApiSuccess('');
-    console.log("Submitting form data:", formData);
-    if(profileImage) console.log("Submitting new image:", profileImage.name);
-    
+
+    const finalOccupation = formData.occupation === 'Other' && formData.customOccupation
+      ? formData.customOccupation
+      : formData.occupation;
+
+    console.log("Final occupation:", finalOccupation);
+    console.log("Submitting:", formData);
+    if (profileImage) console.log("New image:", profileImage.name);
+
     setTimeout(() => {
       setLoading(false);
       setApiSuccess("Profile updated successfully!");
@@ -91,11 +126,13 @@ const ProfilePage = () => {
 
         <form onSubmit={handleSubmit} className="profile-form">
           <div className="profile-layout">
-            
+
             <aside className="profile-sidebar">
               <div className="profile-picture-container">
                 <img src={imagePreview} alt="Profile" className="profile-picture" />
-                <label htmlFor="file-upload" className="edit-picture-label"><FaEdit /> Change Picture</label>
+                <label htmlFor="file-upload" className="edit-picture-label">
+                  <FaEdit /> Change Picture
+                </label>
                 <input id="file-upload" type="file" onChange={handleFileChange} accept="image/*" />
               </div>
               <div className="profile-tip"><p>A professional photo helps you build trust with clients.</p></div>
@@ -111,8 +148,7 @@ const ProfilePage = () => {
                     <label htmlFor="name"><FaUser /> Full Name</label>
                     <input type="text" id="name" name="name" value={formData.name || ''} onChange={handleInputChange} required />
                   </div>
-                  
-                  {/* The Occupation dropdown now uses the new, larger list */}
+
                   <div className="form-group">
                     <label htmlFor="occupation"><FaBriefcase /> Occupation</label>
                     <select
@@ -126,43 +162,80 @@ const ProfilePage = () => {
                       {occupationsList.map(occ => (
                         <option key={occ} value={occ}>{occ}</option>
                       ))}
-                       <option value="Other">Other (Please specify in bio)</option>
+                      <option value="Other">Other (Please specify below)</option>
                     </select>
                   </div>
-
                 </div>
+
+                {formData.occupation === 'Other' && (
+                  <div className="form-group">
+                    <label htmlFor="customOccupation">Custom Occupation</label>
+                    <input
+                      type="text"
+                      id="customOccupation"
+                      name="customOccupation"
+                      value={formData.customOccupation || ''}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                )}
+
                 <div className="form-group">
-                    <label htmlFor="bio">About / Bio</label>
-                    <textarea id="bio" name="bio" value={formData.bio || ''} onChange={handleInputChange} rows="5" placeholder="Tell clients about your experience and what makes you great."></textarea>
+                  <label htmlFor="bio">About / Bio</label>
+                  <textarea id="bio" name="bio" value={formData.bio || ''} onChange={handleInputChange} rows="5" placeholder="Tell clients about your experience and what makes you great."></textarea>
                 </div>
               </div>
 
-              {/* Rest of the form sections remain unchanged */}
               <div className="form-section">
                 <h2>Professional Details</h2>
-                 <div className="form-grid">
-                    <div className="form-group"><label htmlFor="experience"><FaClock /> Years of Experience</label><input type="number" id="experience" name="experience" value={formData.experience || ''} onChange={handleInputChange} /></div>
-                    <div className="form-group"><label htmlFor="hourlyRate"><FaDollarSign /> Hourly Rate</label><input type="number" id="hourlyRate" name="hourlyRate" value={formData.hourlyRate || ''} onChange={handleInputChange} /></div>
-                 </div>
-                 <div className="form-group"><label htmlFor="availability">Availability</label><input type="text" id="availability" name="availability" value={formData.availability || ''} onChange={handleInputChange} placeholder="e.g., Mon-Fri | 9AM - 5PM" /></div>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label htmlFor="experience"><FaClock /> Years of Experience</label>
+                    <input type="number" min="0" id="experience" name="experience" value={formData.experience || ''} onChange={handleInputChange} />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="hourlyRate"><FaDollarSign /> Hourly Rate</label>
+                    <input type="number" min="0" id="hourlyRate" name="hourlyRate" value={formData.hourlyRate || ''} onChange={handleInputChange} />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="availability">Availability</label>
+                  <input type="text" id="availability" name="availability" value={formData.availability || ''} onChange={handleInputChange} placeholder="e.g., Mon-Fri | 9AM - 5PM" />
+                </div>
               </div>
+
               <div className="form-section">
                 <h2>Contact & Location</h2>
-                 <div className="form-grid">
-                    <div className="form-group"><label htmlFor="email"><FaEnvelope /> Email Address</label><input type="email" id="email" name="email" value={formData.email || ''} disabled /></div>
-                    <div className="form-group"><label htmlFor="phone"><FaPhone /> Phone Number</label><input type="tel" id="phone" name="phone" value={formData.phone || ''} onChange={handleInputChange} /></div>
-                 </div>
-                 <div className="form-group"><label htmlFor="location"><FaMapMarkerAlt /> Your Location</label><input type="text" id="location" name="location" value={formData.location || ''} onChange={handleInputChange} placeholder="e.g., Mumbai, Maharashtra" /></div>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label htmlFor="email"><FaEnvelope /> Email Address</label>
+                    <input type="email" id="email" name="email" value={formData.email || ''} disabled />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="phone"><FaPhone /> Phone Number</label>
+                    <input type="tel" id="phone" name="phone" value={formData.phone || ''} onChange={handleInputChange} />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="location"><FaMapMarkerAlt /> Your Location</label>
+                  <input type="text" id="location" name="location" value={formData.location || ''} onChange={handleInputChange} placeholder="e.g., Mumbai, Maharashtra" />
+                </div>
               </div>
+
               <div className="form-section">
                 <h2>Online Presence</h2>
-                 <div className="form-group"><label htmlFor="portfolioUrl"><FaLink /> Portfolio or Website URL</label><input type="url" id="portfolioUrl" name="portfolioUrl" value={formData.portfolioUrl || ''} onChange={handleInputChange} placeholder="https://yourwebsite.com" /></div>
+                <div className="form-group">
+                  <label htmlFor="portfolioUrl"><FaLink /> Portfolio or Website URL</label>
+                  <input type="url" id="portfolioUrl" name="portfolioUrl" value={formData.portfolioUrl || ''} onChange={handleInputChange} placeholder="https://yourwebsite.com" />
+                </div>
               </div>
 
               <button type="submit" className="btn-save-profile" disabled={loading}>
                 {loading ? <FaSpinner className="spinner" /> : 'Save Changes'}
               </button>
             </main>
+
           </div>
         </form>
       </div>
