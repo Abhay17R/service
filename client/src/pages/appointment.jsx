@@ -1,10 +1,9 @@
-// src/pages/MyAppointmentsPage.jsx (Fully Integrated)
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaCalendarAlt, FaClock, FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaStar } from 'react-icons/fa';
-import api from '../api/axios'; // Apne configured axios instance ko import karein
-import '../styles/appointment.css'; // Is CSS file ko bhi update karna hoga
+// ==> UPDATED: Added FaPaperPlane for the 'pending' status
+import { FaCalendarAlt, FaClock, FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaStar, FaPaperPlane } from 'react-icons/fa';
+import api from '../api/axios';
+import '../styles/appointment.css'; // Make sure to add styles for .pending and .rejected (or reuse .cancelled)
 
 // ==========================================================
 //               APPOINTMENT CARD COMPONENT
@@ -13,21 +12,29 @@ const AppointmentCard = ({ appointment, onCancel, onOpenReviewModal, onOpenResch
   const { id, professionalName, professionalOccupation, date, time, status, imageUrl } = appointment;
   const navigate = useNavigate();
 
+  // ==> UPDATED: This function now handles the new 'pending' and 'rejected' statuses
   const getStatusInfo = () => {
     switch (status) {
-      case 'upcoming': return { icon: <FaHourglassHalf />, text: 'Upcoming', className: 'upcoming' };
-      case 'completed': return { icon: <FaCheckCircle />, text: 'Completed', className: 'completed' };
-      case 'cancelled': return { icon: <FaTimesCircle />, text: 'Cancelled', className: 'cancelled' };
-      default: return {};
+      case 'pending':
+        return { icon: <FaPaperPlane />, text: 'Pending Approval', className: 'pending' };
+      case 'upcoming':
+        return { icon: <FaHourglassHalf />, text: 'Upcoming', className: 'upcoming' };
+      case 'completed':
+        return { icon: <FaCheckCircle />, text: 'Completed', className: 'completed' };
+      case 'rejected':
+        return { icon: <FaTimesCircle />, text: 'Rejected', className: 'cancelled' }; // Re-using 'cancelled' style
+      case 'cancelled':
+        return { icon: <FaTimesCircle />, text: 'Cancelled', className: 'cancelled' };
+      default:
+        return { icon: <FaHourglassHalf />, text: status, className: 'default' };
     }
   };
 
   const handleBookAgain = () => {
-    // This assumes you have a route like /professional/:id
-    // You would need to pass the professional's ID to this component
-    // For now, let's just log it.
+    // This logic can navigate the user back to the professional's profile page.
+    // This assumes you have the professional's ID available in the appointment object.
+    // e.g., navigate(`/professional/${appointment.professionalId}`);
     console.log("Booking again with:", professionalName);
-    // navigate(`/professional/${appointment.professionalId}`);
   };
 
   const statusInfo = getStatusInfo();
@@ -47,16 +54,18 @@ const AppointmentCard = ({ appointment, onCancel, onOpenReviewModal, onOpenResch
         </div>
       </div>
       <div className="appointment-actions">
+        {/* ==> UPDATED: User can cancel a request that is either 'pending' or 'upcoming' */}
+        {(status === 'upcoming' || status === 'pending') && (
+          <button onClick={() => onCancel(id)} className="btn-danger">Cancel</button>
+        )}
         {status === 'upcoming' && (
-          <>
-            <button onClick={() => onOpenRescheduleModal(appointment)} className="btn-secondary">Reschedule</button>
-            <button onClick={() => onCancel(id)} className="btn-danger">Cancel</button>
-          </>
+          <button onClick={() => onOpenRescheduleModal(appointment)} className="btn-secondary">Reschedule</button>
         )}
         {status === 'completed' && (
           <button onClick={() => onOpenReviewModal(appointment)} className="btn-primary">Leave a Review</button>
         )}
-        {status === 'cancelled' && (
+        {/* ==> UPDATED: User can book again if appointment was 'cancelled' or 'rejected' */}
+        {(status === 'cancelled' || status === 'rejected') && (
           <button onClick={handleBookAgain} className="btn-primary">Book Again</button>
         )}
       </div>
@@ -70,11 +79,12 @@ const AppointmentCard = ({ appointment, onCancel, onOpenReviewModal, onOpenResch
 // ==========================================================
 const MyAppointmentsPage = () => {
   const [allAppointments, setAllAppointments] = useState([]);
-  const [activeTab, setActiveTab] = useState('upcoming');
+  // ==> UPDATED: 'pending' is now the default active tab for better user experience.
+  const [activeTab, setActiveTab] = useState('pending');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Modal States
+  // Modal States (No changes here)
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewingAppointment, setReviewingAppointment] = useState(null);
   const [rating, setRating] = useState(0);
@@ -86,7 +96,7 @@ const MyAppointmentsPage = () => {
   const [newTime, setNewTime] = useState('');
 
 
-  // Fetch appointments from backend
+  // Fetch appointments from backend (No changes here)
   const fetchAppointments = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -108,10 +118,10 @@ const MyAppointmentsPage = () => {
 
   // Handler to cancel an appointment
   const handleCancelAppointment = async (appointmentId) => {
-    if (!window.confirm('Are you sure you want to cancel this appointment?')) return;
+    // ==> UPDATED: Confirmation message is more specific now.
+    if (!window.confirm('Are you sure you want to cancel this appointment request?')) return;
     try {
       await api.put(`/appointments/${appointmentId}/cancel`);
-      // Update UI instantly without refetching
       setAllAppointments(prev =>
         prev.map(app => app.id === appointmentId ? { ...app, status: 'cancelled' } : app)
       );
@@ -121,7 +131,7 @@ const MyAppointmentsPage = () => {
     }
   };
 
-  // Handlers for Review Modal
+  // Handlers for Review Modal (No changes here)
   const handleOpenReviewModal = (appointment) => {
     setReviewingAppointment(appointment);
     setIsReviewModalOpen(true);
@@ -147,11 +157,11 @@ const MyAppointmentsPage = () => {
     }
   };
 
-  // Handlers for Reschedule Modal
+  // Handlers for Reschedule Modal (No changes here)
   const handleOpenRescheduleModal = (appointment) => {
     setReschedulingAppointment(appointment);
-    setNewDate(appointment.date.split('T')[0]); // Pre-fill date
-    setNewTime(appointment.time); // Pre-fill time
+    setNewDate(appointment.date.split('T')[0]);
+    setNewTime(appointment.time);
     setIsRescheduleModalOpen(true);
   };
 
@@ -163,7 +173,6 @@ const MyAppointmentsPage = () => {
               time: newTime,
           });
           alert('Appointment rescheduled successfully!');
-          // Refresh the list to see changes
           fetchAppointments(); 
           setIsRescheduleModalOpen(false);
       } catch (err) {
@@ -171,16 +180,30 @@ const MyAppointmentsPage = () => {
       }
   };
 
-  const filteredAppointments = allAppointments.filter(app => app.status === activeTab);
+  // ==> UPDATED: Filtering logic now groups 'rejected' appointments under the 'cancelled' tab.
+  const filteredAppointments = allAppointments.filter(app => {
+    if (activeTab === 'cancelled') {
+      return app.status === 'cancelled' || app.status === 'rejected';
+    }
+    return app.status === activeTab;
+  });
 
   const renderContent = () => {
     if (loading) return <div className="loader"></div>;
     if (error) return <div className="empty-state"><p>{error}</p></div>;
     if (filteredAppointments.length === 0) {
+      // ==> UPDATED: Empty state message is now dynamic based on the active tab.
+      const emptyStateText = {
+        pending: 'pending requests',
+        upcoming: 'upcoming appointments',
+        completed: 'completed appointments',
+        cancelled: 'cancelled or rejected appointments',
+      };
+      
       return (
         <div className="empty-state">
           <FaCalendarAlt className="empty-icon" />
-          <h2>No {activeTab} appointments</h2>
+          <h2>No {emptyStateText[activeTab]}</h2>
           <p>You don't have any appointments in this category yet.</p>
           <Link to="/dashboard" className="btn-primary">Find Professionals</Link>
         </div>
@@ -207,18 +230,20 @@ const MyAppointmentsPage = () => {
         <main className="appointments-content">
           <header className="page-header">
             <h1>My Appointments</h1>
-            <p>View and manage all your scheduled appointments.</p>
+            <p>View and manage all your scheduled appointments and requests.</p>
           </header>
+          {/* ==> UPDATED: Tab navigation now includes 'Pending' and groups 'Cancelled/Rejected'. */}
           <nav className="tabs">
+            <button onClick={() => setActiveTab('pending')} className={activeTab === 'pending' ? 'active' : ''}>Pending</button>
             <button onClick={() => setActiveTab('upcoming')} className={activeTab === 'upcoming' ? 'active' : ''}>Upcoming</button>
             <button onClick={() => setActiveTab('completed')} className={activeTab === 'completed' ? 'active' : ''}>Completed</button>
-            <button onClick={() => setActiveTab('cancelled')} className={activeTab === 'cancelled' ? 'active' : ''}>Cancelled</button>
+            <button onClick={() => setActiveTab('cancelled')} className={activeTab === 'cancelled' ? 'active' : ''}>Cancelled/Rejected</button>
           </nav>
           {renderContent()}
         </main>
       </div>
 
-      {/* Review Modal */}
+      {/* Review Modal (No changes here) */}
       {isReviewModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -242,7 +267,7 @@ const MyAppointmentsPage = () => {
         </div>
       )}
 
-      {/* Reschedule Modal */}
+      {/* Reschedule Modal (No changes here) */}
       {isRescheduleModalOpen && (
           <div className="modal-overlay">
               <div className="modal-content">

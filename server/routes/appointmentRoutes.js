@@ -1,5 +1,7 @@
 import express from 'express';
-import { createAppointment, getMyAppointments, cancelAppointment,rescheduleAppointment } from '../controllers/appointmentController.js';
+import { createAppointment, getMyAppointments, cancelAppointment,rescheduleAppointment, acceptAppointment,
+    rejectAppointment,
+    getProfessionalAppointments } from '../controllers/appointmentController.js';
 import { isAuthenticated } from '../middleware/auth.js';
 
 
@@ -20,6 +22,9 @@ router.route('/my').get(getMyAppointments);
 // PUT /api/v1/appointments/:id/cancel
 router.route('/:id/cancel').put(cancelAppointment);
 router.route('/:id/reschedule').put(rescheduleAppointment);
+router.route('/professional/my').get(getProfessionalAppointments); // Get all appointments for a professional
+router.route('/:id/accept').put(acceptAppointment); // Professional accepts a request
+router.route('/:id/reject').put(rejectAppointment); 
 
 
 
