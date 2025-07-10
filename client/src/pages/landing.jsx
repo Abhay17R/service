@@ -1,23 +1,34 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom'; // Use Link for internal navigation
 import '../styles/landing.css';
 
 // Using react-icons for all icons for consistency
 import { 
   FaSearch, FaComments, FaCalendarCheck, FaUserTie, FaTools, 
-  FaStar, FaUserCircle, FaArrowRight, FaFacebookF, FaTwitter, FaLinkedinIn 
+  FaStar, FaUserCircle, FaArrowRight, FaFacebookF, FaTwitter, 
+  FaLinkedinIn, FaTachometerAlt
 } from 'react-icons/fa';
+
+// Import your useAuth hook
+import { useAuth } from '../hooks/useAuth';
 
 const LandingPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   
+  // Get user status from the AuthContext
+  const { user, isLoading } = useAuth();
+
   const handleSearch = (e) => {
     e.preventDefault();
+    // You can later integrate this with a search results page
     alert(`Searching for: ${searchTerm}`);
   };
 
   return (
     <div className="landing-page">
-      {/* Navbar */}
+      {/* ========================================================== */}
+      {/*                       NAVBAR SECTION                       */}
+      {/* ========================================================== */}
       <header className="navbar">
         <div className="container">
           <div className="logo-container">
@@ -29,8 +40,27 @@ const LandingPage = () => {
               <li><a href="#features">Features</a></li>
               <li><a href="#how-it-works">How It Works</a></li>
               <li><a href="#testimonials">Testimonials</a></li>
-              <li><a href="/login" className="btn btn-outline">Login</a></li>
-              <li><a href="/register" className="btn btn-primary">Register</a></li>
+
+              {/* === CONDITIONAL RENDERING LOGIC STARTS HERE === */}
+              {isLoading ? (
+                // Display a loading state while checking auth status
+                <li><span className="btn btn-outline">Loading...</span></li>
+              ) : user ? (
+                // If user is logged in, show a link to their dashboard
+                <li>
+                  <Link to="/dashboard" className="btn btn-primary">
+                    <FaTachometerAlt style={{ marginRight: '8px' }} />
+                    My Dashboard
+                  </Link>
+                </li>
+              ) : (
+                // If user is not logged in, show Login and Register links
+                <>
+                  <li><Link to="/login" className="btn btn-outline">Login</Link></li>
+                  <li><Link to="/register" className="btn btn-primary">Register</Link></li>
+                </>
+              )}
+              {/* === CONDITIONAL RENDERING LOGIC ENDS HERE === */}
             </ul>
           </nav>
           <div className="mobile-menu-btn">
@@ -41,7 +71,9 @@ const LandingPage = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* ========================================================== */}
+      {/*                        HERO SECTION                        */}
+      {/* ========================================================== */}
       <section id="hero" className="hero-section">
         <div className="container">
           <div className="hero-content">
@@ -102,7 +134,9 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* How It Works Section */}
+      {/* ========================================================== */}
+      {/*                     HOW IT WORKS SECTION                   */}
+      {/* ========================================================== */}
       <section id="how-it-works" className="how-it-works-section">
         <div className="container">
           <div className="section-header">
@@ -113,30 +147,21 @@ const LandingPage = () => {
           <div className="steps-container">
             <div className="step">
               <div className="step-number">1</div>
-              <div className="step-icon">
-                <FaSearch />
-                <div className="icon-bg"></div>
-              </div>
+              <div className="step-icon"><FaSearch /><div className="icon-bg"></div></div>
               <h3>Search & Discover</h3>
               <p>Find professionals based on skills, location, availability, and ratings</p>
             </div>
             <div className="connector-line"></div>
             <div className="step">
               <div className="step-number">2</div>
-              <div className="step-icon">
-                <FaComments />
-                <div className="icon-bg"></div>
-              </div>
+              <div className="step-icon"><FaComments /><div className="icon-bg"></div></div>
               <h3>Connect & Discuss</h3>
               <p>Chat directly with professionals to discuss project details</p>
             </div>
             <div className="connector-line"></div>
             <div className="step">
               <div className="step-number">3</div>
-              <div className="step-icon">
-                <FaCalendarCheck />
-                <div className="icon-bg"></div>
-              </div>
+              <div className="step-icon"><FaCalendarCheck /><div className="icon-bg"></div></div>
               <h3>Book & Review</h3>
               <p>Schedule appointments and leave reviews after service completion</p>
             </div>
@@ -144,7 +169,9 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* ========================================================== */}
+      {/*                       FEATURES SECTION                     */}
+      {/* ========================================================== */}
       <section id="features" className="features-section">
         <div className="container">
           <div className="section-header">
@@ -153,53 +180,19 @@ const LandingPage = () => {
             <p>Everything you need to find and manage professional services</p>
           </div>
           <div className="features-grid">
-            <div className="feature-card">
-              <div className="feature-icon">
-                <FaUserTie />
-              </div>
-              <h3>Verified Professionals</h3>
-              <p>All professionals undergo rigorous background checks and verification processes</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">
-                <FaTools />
-              </div>
-              <h3>Diverse Experts</h3>
-              <p>From home services to tech experts, find professionals for every need</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">
-                <FaComments />
-              </div>
-              <h3>Real-time Chat</h3>
-              <p>Instant messaging with professionals to clarify all details</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">
-                <FaCalendarCheck />
-              </div>
-              <h3>Smart Booking</h3>
-              <p>Integrated calendar system for seamless appointment scheduling</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">
-                <FaStar />
-              </div>
-              <h3>Transparent Reviews</h3>
-              <p>Authentic ratings and reviews from verified customers</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">
-                <FaUserCircle />
-              </div>
-              <h3>Personal Dashboard</h3>
-              <p>Manage all your appointments and messages in one place</p>
-            </div>
+            <div className="feature-card"><div className="feature-icon"><FaUserTie /></div><h3>Verified Professionals</h3><p>All professionals undergo rigorous background checks and verification processes</p></div>
+            <div className="feature-card"><div className="feature-icon"><FaTools /></div><h3>Diverse Experts</h3><p>From home services to tech experts, find professionals for every need</p></div>
+            <div className="feature-card"><div className="feature-icon"><FaComments /></div><h3>Real-time Chat</h3><p>Instant messaging with professionals to clarify all details</p></div>
+            <div className="feature-card"><div className="feature-icon"><FaCalendarCheck /></div><h3>Smart Booking</h3><p>Integrated calendar system for seamless appointment scheduling</p></div>
+            <div className="feature-card"><div className="feature-icon"><FaStar /></div><h3>Transparent Reviews</h3><p>Authentic ratings and reviews from verified customers</p></div>
+            <div className="feature-card"><div className="feature-icon"><FaUserCircle /></div><h3>Personal Dashboard</h3><p>Manage all your appointments and messages in one place</p></div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* ========================================================== */}
+      {/*                    TESTIMONIALS SECTION                    */}
+      {/* ========================================================== */}
       <section id="testimonials" className="testimonials-section">
         <div className="container">
           <div className="section-header">
@@ -209,135 +202,56 @@ const LandingPage = () => {
           </div>
           <div className="testimonials-grid">
             <div className="testimonial-card">
-              <div className="testimonial-content">
-                <div className="rating">
-                  <FaStar />
-                  <FaStar />
-                  <FaStar />
-                  <FaStar />
-                  <FaStar />
-                </div>
-                <p>"ServiceLink saved me when my plumbing emergency happened at 10 PM. Found a professional within 20 minutes who fixed everything!"</p>
-              </div>
-              <div className="client-info">
-                <div className="client-avatar avatar1"></div>
-                <div>
-                  <h4>Sarah Johnson</h4>
-                  <p>Homeowner, Seattle</p>
-                </div>
-              </div>
+              <div className="testimonial-content"><div className="rating"><FaStar /><FaStar /><FaStar /><FaStar /><FaStar /></div><p>"ServiceLink saved me when my plumbing emergency happened at 10 PM. Found a professional within 20 minutes who fixed everything!"</p></div>
+              <div className="client-info"><div className="client-avatar avatar1"></div><div><h4>Sarah Johnson</h4><p>Homeowner, Seattle</p></div></div>
             </div>
             <div className="testimonial-card">
-              <div className="testimonial-content">
-                <div className="rating">
-                  <FaStar />
-                  <FaStar />
-                  <FaStar />
-                  <FaStar />
-                  <FaStar />
-                </div>
-                <p>"As a small business owner, ServiceLink has been invaluable for finding reliable tech support and marketing experts."</p>
-              </div>
-              <div className="client-info">
-                <div className="client-avatar avatar2"></div>
-                <div>
-                  <h4>Michael Chen</h4>
-                  <p>Business Owner, NYC</p>
-                </div>
-              </div>
+              <div className="testimonial-content"><div className="rating"><FaStar /><FaStar /><FaStar /><FaStar /><FaStar /></div><p>"As a small business owner, ServiceLink has been invaluable for finding reliable tech support and marketing experts."</p></div>
+              <div className="client-info"><div className="client-avatar avatar2"></div><div><h4>Michael Chen</h4><p>Business Owner, NYC</p></div></div>
             </div>
             <div className="testimonial-card">
-              <div className="testimonial-content">
-                <div className="rating">
-                  <FaStar />
-                  <FaStar />
-                  <FaStar />
-                  <FaStar />
-                  <FaStar />
-                </div>
-                <p>"The platform is so easy to use. I found a web developer who completely transformed my online store in just 2 weeks!"</p>
-              </div>
-              <div className="client-info">
-                <div className="client-avatar avatar3"></div>
-                <div>
-                  <h4>Emma Rodriguez</h4>
-                  <p>E-commerce Entrepreneur</p>
-                </div>
-              </div>
+              <div className="testimonial-content"><div className="rating"><FaStar /><FaStar /><FaStar /><FaStar /><FaStar /></div><p>"The platform is so easy to use. I found a web developer who completely transformed my online store in just 2 weeks!"</p></div>
+              <div className="client-info"><div className="client-avatar avatar3"></div><div><h4>Emma Rodriguez</h4><p>E-commerce Entrepreneur</p></div></div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* ========================================================== */}
+      {/*                          CTA SECTION                       */}
+      {/* ========================================================== */}
       <section id="cta" className="cta-section">
         <div className="container">
           <div className="cta-content">
             <h2>Ready to Get Started?</h2>
             <p>Join thousands of satisfied users and professionals on ServiceLink</p>
             <div className="cta-buttons">
-              <a href="#" className="btn btn-light">
-                I Need a Service
-              </a>
-              <a href="#" className="btn btn-primary">
-                I'm a Professional
-              </a>
+              <Link to="/register" className="btn btn-light">I Need a Service</Link>
+              <Link to="/register" className="btn btn-primary">I'm a Professional</Link>
             </div>
           </div>
           <div className="cta-image"></div>
         </div>
       </section>
 
-      {/* Footer */}
+      {/* ========================================================== */}
+      {/*                        FOOTER SECTION                      */}
+      {/* ========================================================== */}
       <footer className="footer">
         <div className="container">
           <div className="footer-grid">
             <div className="footer-about">
-              <div className="logo-container">
-                <h3 className="logo">ServiceLink</h3>
-                <span className="logo-tag">Pro</span>
-              </div>
+              <div className="logo-container"><h3 className="logo">ServiceLink</h3><span className="logo-tag">Pro</span></div>
               <p>Connecting you with the best professionals for any job, any time.</p>
-              <div className="social-icons">
-                <a href="#"><FaFacebookF /></a>
-                <a href="#"><FaTwitter /></a>
-                <a href="#"><FaLinkedinIn /></a>
-              </div>
+              <div className="social-icons"><a href="#"><FaFacebookF /></a><a href="#"><FaTwitter /></a><a href="#"><FaLinkedinIn /></a></div>
             </div>
-            <div className="footer-links">
-              <h4>Company</h4>
-              <ul>
-                <li><a href="#">About Us</a></li>
-                <li><a href="#">Careers</a></li>
-                <li><a href="#">Press</a></li>
-                <li><a href="#">Blog</a></li>
-              </ul>
-            </div>
-            <div className="footer-links">
-              <h4>Resources</h4>
-              <ul>
-                <li><a href="#">Help Center</a></li>
-                <li><a href="#">Community</a></li>
-                <li><a href="#">Partners</a></li>
-                <li><a href="#">Events</a></li>
-              </ul>
-            </div>
-            <div className="footer-links">
-              <h4>Legal</h4>
-              <ul>
-                <li><a href="#">Privacy Policy</a></li>
-                <li><a href="#">Terms of Service</a></li>
-                <li><a href="#">Cookie Policy</a></li>
-                <li><a href="#">Security</a></li>
-              </ul>
-            </div>
+            <div className="footer-links"><h4>Company</h4><ul><li><a href="#">About Us</a></li><li><a href="#">Careers</a></li><li><a href="#">Press</a></li><li><a href="#">Blog</a></li></ul></div>
+            <div className="footer-links"><h4>Resources</h4><ul><li><a href="#">Help Center</a></li><li><a href="#">Community</a></li><li><a href="#">Partners</a></li><li><a href="#">Events</a></li></ul></div>
+            <div className="footer-links"><h4>Legal</h4><ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li><li><a href="#">Cookie Policy</a></li><li><a href="#">Security</a></li></ul></div>
           </div>
           <div className="footer-bottom">
             <p>© {new Date().getFullYear()} ServiceLink Pro. All Rights Reserved.</p>
-            <div className="footer-apps">
-              <button className="app-store">App Store</button>
-              <button className="google-play">Google Play</button>
-            </div>
+            <div className="footer-apps"><button className="app-store">App Store</button><button className="google-play">Google Play</button></div>
           </div>
         </div>
       </footer>
