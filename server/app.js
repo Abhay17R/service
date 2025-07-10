@@ -7,7 +7,7 @@ import dotenv from 'dotenv'; // <<-- Sirf import yahan rahega
 
 // Apne routes import karo
 import userRouter from './routes/userRoutes.js';
-import errorMiddleware from './middleware/error.js';
+import { errorMiddleware } from './middleware/error.js';
 import appointmentRouter from './routes/appointmentRoutes.js';
 import reviewRouter from './routes/reviewRoutes.js';
 import chatRouter  from './routes/chatRoutes.js'

@@ -160,47 +160,60 @@
     res.status(200).json({ success: true, user });
   });
 
- export const updateMyProfile = catchAsyncError(async (req, res, next) => {
-  // ==> UPDATE: Destructure all the new fields from req.body
+// ==> YEH NAYA CODE APNI userController.js FILE MEIN PASTE KAREIN <==
+// Purane 'updateMyProfile' function ko isse replace karein
+
+export const updateMyProfile = catchAsyncError(async (req, res, next) => {
+  // Saare possible fields ko request body se lein
   const { 
     name, 
-    phone, // Added phone
     location, 
     bio, 
     experience, 
     hourlyRate, 
     availability,
-    portfolioUrl, // Added portfolioUrl
-    occupation, // Added occupation for professional
-    customOccupation // Added for the 'Other' option
+    portfolioUrl,
+    occupation, // Sabse important field
+    customOccupation
   } = req.body;
 
   const user = await User.findById(req.user.id);
 
-  // Update common fields
+  // Common fields jo client aur professional dono ke liye hain
   if (name) user.name = name;
   if (location) user.location = location;
-  if (phone) user.phone = phone;
 
-  // Update fields only for users with the 'professional' role
-  if (user.role === 'professional') {
-    // If occupation from dropdown is 'Other', use the customOccupation value.
-    const finalOccupation = occupation === 'Other' ? customOccupation : occupation;
+  // ==> NAYA LOGIC YAHAN HAI <==
+  const finalOccupation = occupation === 'Other' ? customOccupation : occupation;
+
+  // Agar user ne koi occupation select kiya hai (bhale hi woh client ho)
+  if (finalOccupation && finalOccupation.trim() !== '') {
     
-    if (finalOccupation) user.professionalDetails.occupation = finalOccupation;
+    // Step 1: User ka role 'professional' set kar do
+    user.role = 'professional';
+
+    // Step 2: Check karo ki 'professionalDetails' object hai ya nahi.
+    // Agar nahi hai, toh ek khali object bana do taaki crash na ho.
+    if (!user.professionalDetails) {
+      user.professionalDetails = {};
+    }
+
+    // Step 3: Ab saari professional details save karo
+    user.professionalDetails.occupation = finalOccupation;
     if (bio) user.professionalDetails.bio = bio;
     if (experience) user.professionalDetails.experience = experience;
     if (hourlyRate) user.professionalDetails.hourlyRate = hourlyRate;
     if (availability) user.professionalDetails.availability = availability;
     if (portfolioUrl) user.professionalDetails.portfolioUrl = portfolioUrl;
   }
-
+  
+  // User document ko database mein save karo
   await user.save();
   
   res.status(200).json({ 
     success: true, 
     message: "Profile updated successfully.", 
-    user 
+    user // Updated user ko response mein bhejo
   });
 });
 
@@ -319,3 +332,74 @@
           message: `A new verification code has been sent to your ${verificationMethod}.`,
       });
   });
+  // ==> YEH NAYA CODE APNI userController.js FILE KE END MEIN ADD KAREIN <==
+
+/// ==> YEH DONO NAYE FUNCTIONS APNI userController.js FILE MEIN PASTE KAREIN <==
+// Purane 'getDashboardProfessionals' aur 'getUniqueOccupations' ko isse replace karein
+
+// 1. DASHBOARD KE LIYE BULLETPROOF FUNCTION
+// ==> FINAL BULLETPROOF CODE - isse purane functions ko replace karein <==
+
+// 1. FINAL DASHBOARD PROFESSIONALS FUNCTION
+// Purane getDashboardProfessionals function ko isse replace karein
+
+export const getDashboardProfessionals = async (req, res, next) => {
+  try {
+    const { occupation } = req.query;
+
+    const query = { 
+      role: 'professional', 
+      accountVerified: true,
+      'professionalDetails.occupation': { $exists: true, $ne: "" } 
+    };
+
+    if (occupation && occupation.toLowerCase() !== 'all') {
+      query['professionalDetails.occupation'] = new RegExp(occupation, 'i');
+    }
+    
+    const professionals = await User.find(query).select('-password -notifications');
+    
+    const formattedProfessionals = professionals.map(p => ({
+        id: p._id,
+        name: p.name,
+        occupation: p.professionalDetails?.occupation || 'N/A',
+        location: p.location || 'Not Specified',
+        rating: p.averageRating || 0,
+        // ==> FIX YAHAN HAI <==
+        // Ab yeh crash nahi hoga agar profileImage null hai. Ek default image dikhayega.
+        imageUrl: p.profileImage?.url || 'https://i.ibb.co/4pDNDk1/avatar.png', 
+    }));
+
+    res.status(200).json({ 
+      success: true, 
+      count: formattedProfessionals.length, 
+      professionals: formattedProfessionals 
+    });
+
+  } catch (error) {
+    // Agar koi aur anjaan error aaye, toh server crash nahi hoga
+    console.error("ERROR IN getDashboardProfessionals:", error);
+    return next(new ErrorHandler("Server error while fetching professionals.", 500));
+  }
+};
+
+// 2. FINAL UNIQUE OCCUPATIONS FUNCTION
+export const getUniqueOccupations = async (req, res, next) => {
+  try {
+    const occupations = await User.distinct('professionalDetails.occupation', { 
+      role: 'professional', 
+      accountVerified: true,
+      'professionalDetails.occupation': { $exists: true, $ne: "" }
+    });
+
+    res.status(200).json({
+        success: true,
+        occupations,
+    });
+
+  } catch (error) {
+    // Agar phir bhi koi error aaye, toh server crash nahi hoga
+    console.error("CRASH IN getUniqueOccupations:", error);
+    return next(new ErrorHandler("Server error while fetching occupations.", 500));
+  }
+};

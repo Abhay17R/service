@@ -11,8 +11,11 @@ import {
   updateProfileImage,
   getAllProfessionals,
   getProfessionalById,
+  getDashboardProfessionals,
+  getUniqueOccupations,
   forgotPassword,
   resetPassword,
+  
 } from '../controllers/userController.js';
 import { isAuthenticated } from '../middleware/auth.js'; // Maan ke chal raha hoon ki tumhari auth middleware yahan hai
 
@@ -84,6 +87,13 @@ router.route("/professional/:id").get(getProfessionalById);
 router.route("/password/forgot").post(forgotPassword);
 
 router.route("/password/reset/:token").put(resetPassword);
+
+
+
+router.route("/professional/:id").get(getProfessionalById);
+router.route("/dashboard/professionals").get(getDashboardProfessionals);
+router.route("/dashboard/occupations").get(getUniqueOccupations);
+
 
 
 export default router;
