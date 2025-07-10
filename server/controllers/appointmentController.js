@@ -5,6 +5,40 @@ import { catchAsyncError } from '../middleware/catchAsyncError.js';
 import ErrorHandler from '../middleware/error.js';
 import { getIO as getIo, getUserSocketId as getReceiverSocketId } from '../socket/socket.js';
 
+// ==> YEH HELPER FUNCTION APNI FILE MEIN UPAR ADD KAREIN <==
+
+const sendAutomaticChatMessage = async (senderId, receiverId, messageText) => {
+  try {
+    let conversation = await Conversation.findOne({
+      participants: { $all: [senderId, receiverId] },
+    });
+
+    if (!conversation) {
+      conversation = await Conversation.create({
+        participants: [senderId, receiverId],
+      });
+    }
+
+    const newMessage = new Message({
+      senderId,
+      receiverId,
+      message: messageText,
+    });
+
+    if (newMessage) {
+      conversation.messages.push(newMessage._id);
+      await Promise.all([conversation.save(), newMessage.save()]);
+
+      const receiverSocketId = getReceiverSocketId(receiverId);
+      if (receiverSocketId) {
+        getIo().to(receiverSocketId).emit('newMessage', newMessage);
+      }
+    }
+  } catch (error) {
+    // Agar chat message fail ho, toh main process ko nahi rokna hai.
+    console.error("Failed to send automatic chat message:", error);
+  }
+};
 
 // ===================================================================================
 // CONTROLLER 1: CLIENT BOOKS AN APPOINTMENT (APPOINTMENT BANAO + CHAT MEIN MSG BHEJO)
@@ -105,6 +139,8 @@ export const getProfessionalAppointments = catchAsyncError(async (req, res, next
 // ================================================================
 // CONTROLLER 4: PROFESSIONAL ACCEPTS AN APPOINTMENT
 // ================================================================
+// ==> ISSE APNE PURANE 'acceptAppointment' FUNCTION KO REPLACE KAREIN <==
+
 export const acceptAppointment = catchAsyncError(async (req, res, next) => {
     const appointment = await Appointment.findById(req.params.id);
     if (!appointment) return next(new ErrorHandler('Appointment not found.', 404));
@@ -113,12 +149,25 @@ export const acceptAppointment = catchAsyncError(async (req, res, next) => {
     
     appointment.status = 'upcoming';
     await appointment.save();
+
+    // ==> YEH NAYA CODE ADD HUA HAI <==
+    // Client ko automatic chat message bhejo
+    const messageText = `I have accepted your appointment request for ${new Date(appointment.date).toLocaleDateString()} at ${appointment.time}. I look forward to our meeting!`;
+    await sendAutomaticChatMessage(
+      appointment.professional.toString(), // Sender (The Professional)
+      appointment.client.toString(),       // Receiver (The Client)
+      messageText
+    );
+    // ==> NAYA CODE KHATAM <==
+    
     res.status(200).json({ success: true, message: 'Appointment accepted.' });
 });
 
 // ================================================================
 // CONTROLLER 5: PROFESSIONAL REJECTS AN APPOINTMENT
 // ================================================================
+// ==> ISSE APNE PURANE 'rejectAppointment' FUNCTION KO REPLACE KAREIN <==
+
 export const rejectAppointment = catchAsyncError(async (req, res, next) => {
     const appointment = await Appointment.findById(req.params.id);
     if (!appointment) return next(new ErrorHandler('Appointment not found.', 404));
@@ -127,6 +176,17 @@ export const rejectAppointment = catchAsyncError(async (req, res, next) => {
     
     appointment.status = 'rejected';
     await appointment.save();
+
+    // ==> YEH NAYA CODE ADD HUA HAI <==
+    // Client ko automatic chat message bhejo
+    const messageText = `Unfortunately, I have to reject your appointment request for ${new Date(appointment.date).toLocaleDateString()} at ${appointment.time}. Please feel free to request another time if you wish.`;
+    await sendAutomaticChatMessage(
+      appointment.professional.toString(), // Sender (The Professional)
+      appointment.client.toString(),       // Receiver (The Client)
+      messageText
+    );
+    // ==> NAYA CODE KHATAM <==
+
     res.status(200).json({ success: true, message: 'Appointment rejected.' });
 });
 
