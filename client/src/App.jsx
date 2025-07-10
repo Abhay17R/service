@@ -10,7 +10,9 @@ import DashboardPage from './pages/dashboard';
 import MyAppointmentsPage from './pages/appointment';
 import Chat from './pages/chat'
 import ProfilePage from './pages/profile';
-import ViewProfile from './pages/viewProfile'
+import ViewProfile from './pages/viewProfile';
+import BookingPage from './pages/bookingPage';
+import AppointmentReceived from './pages/appointmentReq'; 
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
               <Route path="/chat" element={<Chat />} />
               <Route path="/profile" element={<ProfilePage />} />
              <Route path="/professional/:id"  element={<ViewProfile />} />
+              <Route path="/book-appointment/:professionalId" element={<BookingPage />} />
+              <Route path="/appointmentReceived" element={< AppointmentReceived  />} />
          </Route>
         
       </Routes>

@@ -1,0 +1,80 @@
+.booking-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 90vh;
+  background-color: #f4f7f6;
+  padding: 2rem;
+}
+.booking-form-container {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 100%;
+}
+.professional-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.professional-header img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+  border: 3px solid #6a11cb;
+}
+.professional-header h1, .professional-header h2, .professional-header p {
+  margin: 0;
+}
+.professional-header h2 {
+    font-weight: 400;
+    color: #666;
+    font-size: 1rem;
+}
+.professional-header h1 {
+    font-size: 1.8rem;
+    color: #333;
+}
+.professional-header p {
+    color: #6a11cb;
+    font-weight: 500;
+}
+.form-group {
+  margin-bottom: 1.5rem;
+}
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+.form-group input, .form-group textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+.btn-submit {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(to right, #6a11cb, #2575fc);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.btn-submit:hover {
+  opacity: 0.9;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+.btn-submit:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}

@@ -1,31 +1,50 @@
 import express from 'express';
-import { createAppointment, getMyAppointments, cancelAppointment,rescheduleAppointment, acceptAppointment,
+import {
+    createAppointmentAndNotify,
+    getMyAppointments,
+    cancelAppointment,
+    rescheduleAppointment,
+    acceptAppointment,
     rejectAppointment,
-    getProfessionalAppointments } from '../controllers/appointmentController.js';
+    getProfessionalAppointments
+} from '../controllers/appointmentController.js';
 import { isAuthenticated } from '../middleware/auth.js';
-
 
 const router = express.Router();
 
-// Saare routes protected hain, isliye user ka logged-in hona zaroori hai
+// Saare appointment routes ke liye user ka logged-in hona zaroori hai.
 router.use(isAuthenticated);
 
-// Route 1: Naya appointment book karne ke liye
-// POST /api/v1/appointments/book
-router.route('/book').post(createAppointment);
 
-// Route 2: Apne saare appointments dekhne ke liye
-// GET /api/v1/appointments/my
+// ==================================================
+//               CLIENT-FACING ROUTES
+// ==================================================
+
+// Client ek naya appointment book karta hai
+router.route('/book').post(createAppointmentAndNotify);
+
+// Client apne saare appointments dekhta hai
 router.route('/my').get(getMyAppointments);
 
-// Route 3: Ek specific appointment cancel karne ke liye
-// PUT /api/v1/appointments/:id/cancel
+// Client ek 'pending' ya 'upcoming' appointment cancel karta hai
 router.route('/:id/cancel').put(cancelAppointment);
-router.route('/:id/reschedule').put(rescheduleAppointment);
-router.route('/professional/my').get(getProfessionalAppointments); // Get all appointments for a professional
-router.route('/:id/accept').put(acceptAppointment); // Professional accepts a request
-router.route('/:id/reject').put(rejectAppointment); 
 
+// Client ek 'upcoming' appointment reschedule karta hai
+router.route('/:id/reschedule').put(rescheduleAppointment);
+
+
+// ==================================================
+//             PROFESSIONAL-FACING ROUTES
+// ==================================================
+
+// Professional apne saare appointments dekhta hai
+router.route('/professional/my').get(getProfessionalAppointments);
+
+// Professional ek 'pending' request ko accept karta hai
+router.route('/:id/accept').put(acceptAppointment);
+
+// Professional ek 'pending' request ko reject karta hai
+router.route('/:id/reject').put(rejectAppointment);
 
 
 export default router;

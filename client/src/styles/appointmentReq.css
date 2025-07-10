@@ -1,0 +1,85 @@
+.professional-dashboard-page {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+.professional-dashboard-page header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.professional-dashboard-page .tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+.tabs button {
+  padding: 1rem 1.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  border-bottom: 3px solid transparent;
+}
+.tabs button.active {
+  color: #6a11cb;
+  border-bottom-color: #6a11cb;
+}
+.requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.request-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+}
+.client-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.client-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.client-info h4 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.request-notes {
+    font-style: italic;
+    color: #555;
+    font-size: 0.9rem;
+}
+.request-details {
+  display: flex;
+  gap: 1.5rem;
+  color: #333;
+}
+.request-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.accept-btn, .reject-btn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.accept-btn { background-color: #28a745; }
+.reject-btn { background-color: #dc3545; }

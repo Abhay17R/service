@@ -32,6 +32,9 @@ const Header = () => {
           <NavLink to="/my-appointments" className="nav-link">
             <FaCalendarCheck /> My Appointments
           </NavLink>
+          <NavLink to="/appointmentReceived" className="nav-link">
+            <FaCalendarCheck />Appointments Received
+          </NavLink>
           
           {/* ==> STEP 2: Naye links add kiye gaye hain ==> */}
           <NavLink to="/chat" className="nav-link">
