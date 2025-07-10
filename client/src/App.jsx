@@ -10,6 +10,7 @@ import DashboardPage from './pages/dashboard';
 import MyAppointmentsPage from './pages/appointment';
 import Chat from './pages/chat'
 import ProfilePage from './pages/profile';
+import ViewProfile from './pages/viewProfile'
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
               <Route path="/my-appointments" element={<MyAppointmentsPage />} />
               <Route path="/chat" element={<Chat />} />
               <Route path="/profile" element={<ProfilePage />} />
+             <Route path="/professional/:id"  element={<ViewProfile />} />
          </Route>
         
       </Routes>

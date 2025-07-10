@@ -256,16 +256,36 @@ export const updateMyProfile = catchAsyncError(async (req, res, next) => {
     res.status(200).json({ success: true, count: professionals.length, professionals });
   });
 
-  export const getProfessionalById = catchAsyncError(async (req, res, next) => {
-    const professional = await User.findById(req.params.id).populate({
-      path: 'reviews',
-      populate: { path: 'user', select: 'name profileImage.url' }
-    });
-    if (!professional || professional.role !== 'professional') {
-      return next(new ErrorHandler("Professional not found.", 404));
+  // ==> YEH NAYA FUNCTION APNI userController.js FILE MEIN PASTE KAREIN <==
+
+ // Ensure ErrorHandler is imported
+
+export const getProfessionalById = catchAsyncError(async (req, res, next) => {
+  // Step 1: URL se professional ki ID nikalo
+  const professionalId = req.params.id;
+
+  // Step 2: Database se professional ko dhoondo
+  // .populate() bahut zaroori hai. Yeh reviews ke saath-saath,
+  // review dene wale user ka naam aur profile image bhi laayega.
+  const professional = await User.findById(professionalId).populate({
+    path: 'reviews', // User model ke 'reviews' array ko populate karo
+    populate: {
+      path: 'user', // Har review ke andar 'user' field ko populate karo
+      select: 'name profileImage.url' // User se sirf naam aur image URL lao
     }
-    res.status(200).json({ success: true, professional });
   });
+
+  // Step 3: Agar professional nahi mila, ya woh client hai, toh error bhejo
+  if (!professional || professional.role !== 'professional') {
+    return next(new ErrorHandler("Professional not found.", 404));
+  }
+
+  // Step 4: Sab sahi hai, toh professional ka data response mein bhej do
+  res.status(200).json({
+    success: true,
+    professional,
+  });
+});
 
 
   // --- PASSWORD MANAGEMENT ---
