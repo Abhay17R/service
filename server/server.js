@@ -1,7 +1,7 @@
 // server.js (CORRECTED & COMPLETE CODE)
 
 import app from './app.js';
-import { connection as connectDatabase } from './database/dbConnection.js'; 
+import { connection as connectDatabase } from './database/dbconnection.js'; 
 import { initializeSocketServer } from './socket/socket.js';
 import cloudinary from 'cloudinary';
 
