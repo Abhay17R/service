@@ -27,7 +27,7 @@ export const sendToken = async (user, statusCode, message, res) => {
     // domain: 'localhost' explicitly tells the browser that this cookie is valid for any
     // request to any port on the 'localhost' domain (e.g., from :5173 to :4000).
     // In production, you would change this to your actual domain (e.g., "yourwebsite.com").
-    domain: process.env.NODE_ENV === "production" ? ".your-production-domain.com" : "localhost",
+
   };
 
   // 3. Destructure the user object to send only the necessary data to the frontend.
