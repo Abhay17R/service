@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [dashboardVersion, setDashboardVersion] = useState(0);
 
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+  const BACKEND_URL = import.meta.env.VITE_API_URL|| 'http://localhost:4000';
 
   const login = async (email, password) => {
     try {
