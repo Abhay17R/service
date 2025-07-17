@@ -22,6 +22,8 @@ export const sendToken = async (user, statusCode, message, res) => {
     // sameSite: 'Lax' is good for development. 'None' is needed for cross-site cookies in production
     // and requires secure: true.
     sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    partitioned:process.env.NODE_ENV === "production" ? "None" : "Lax",
+    partitioned:true
 
     // ===> THIS IS THE KEY FIX <===
     // domain: 'localhost' explicitly tells the browser that this cookie is valid for any
